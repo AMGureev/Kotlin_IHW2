@@ -1,5 +1,6 @@
 package ru.hse.restaurant.dao
 
+import org.mindrot.jbcrypt.BCrypt
 import ru.hse.restaurant.entity.AdminEntity
 import ru.hse.restaurant.entity.PersonEntity
 import ru.hse.restaurant.entity.UserEntity
