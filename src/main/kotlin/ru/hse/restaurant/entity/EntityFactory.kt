@@ -1,7 +1,8 @@
 package ru.hse.restaurant.entity
 
+import ru.hse.restaurant.enums.Type
+
 class EntityFactory {
-    enum class Type {ADMIN, USER}
     fun createPerson(type: Type, login : String, password : String): PersonEntity =
         when (type) {
             Type.ADMIN -> AdminEntity(password, login)
