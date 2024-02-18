@@ -1,6 +1,7 @@
 package ru.hse.restaurant.dao
 
 import ru.hse.restaurant.entity.DishEntity
+import ru.hse.restaurant.entity.ReviewEntity
 
 class InMemoryDishDao : DishDao {
     private var dishes = mutableListOf<DishEntity>()
@@ -21,5 +22,13 @@ class InMemoryDishDao : DishDao {
 
     override fun returnDishByTitle(title: String): DishEntity {
         return dishes.find { it.title == title }!!
+    }
+
+    override fun leaveFeedbackToDish(dish: DishEntity, feedback: ReviewEntity) {
+        dish.reviews.addLast(feedback)
+    }
+
+    override fun returnAllReviewsAboutDish(dish: DishEntity) : List<ReviewEntity> {
+        return dish.reviews
     }
 }
