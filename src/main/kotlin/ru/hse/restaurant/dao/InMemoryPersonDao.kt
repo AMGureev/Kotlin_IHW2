@@ -33,4 +33,8 @@ class InMemoryPersonDao : PersonDao {
     override fun fillingAccountsData() {
         TODO("Not yet implemented")
     }
+
+    override fun returnAccountByLogin(login: String) : PersonEntity? {
+        return users.find { it.login == login }
+    }
 }

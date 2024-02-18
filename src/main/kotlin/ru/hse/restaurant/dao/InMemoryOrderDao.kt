@@ -1,11 +1,18 @@
 package ru.hse.restaurant.dao
 
+import ru.hse.restaurant.entity.DishEntity
 import ru.hse.restaurant.entity.OrderEntity
+import ru.hse.restaurant.entity.UserEntity
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 class InMemoryOrderDao : OrderDao {
     private var orders = mutableListOf<OrderEntity>()
-    override fun createOrder(order: OrderEntity) {
-        orders.add(order)
+    private var lastId = 0
+    override fun createOrder(person : UserEntity, dishes : List<DishEntity>) {
+        val time = LocalDateTime.now()
+        orders.add(OrderEntity(lastId, person, "create", dishes, time))
+        lastId += 1
     }
 
     override fun cancelOrder(order: OrderEntity) {
@@ -26,5 +33,9 @@ class InMemoryOrderDao : OrderDao {
             sum += order.dishes[i].price
         }
         return sum
+    }
+
+    override fun returnOrderById(id: Int): OrderEntity? {
+        return orders.find { it.id == id }
     }
 }

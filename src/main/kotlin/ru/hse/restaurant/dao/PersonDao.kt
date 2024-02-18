@@ -9,4 +9,5 @@ interface PersonDao {
     fun findAccountByLogin(login: String) : Boolean // search for account by login
     fun saveAllAccounts() // save all accounts in json file
     fun fillingAccountsData() // data recovery from file
+    fun returnAccountByLogin(login : String) : PersonEntity?
 }
