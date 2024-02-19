@@ -1,5 +1,8 @@
 package org.example.ru.hse.restaurant
 
+import ru.hse.restaurant.controller.ConsoleController
+
 fun main() {
-    println("Hello World!")
+    val console = ConsoleController()
+    console.launch()
 }

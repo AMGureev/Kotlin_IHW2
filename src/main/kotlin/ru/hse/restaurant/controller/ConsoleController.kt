@@ -2,6 +2,7 @@ package ru.hse.restaurant.controller
 
 import ru.hse.restaurant.dao.InMemoryAccountDao
 import ru.hse.restaurant.entity.AdminEntity
+import kotlin.system.exitProcess
 
 class ConsoleController : Controller{
     private val accountDao = InMemoryAccountDao()
@@ -51,15 +52,16 @@ class ConsoleController : Controller{
                     }
                     "n" -> {
                         registerAccount(login, password, false)
-
                     }
                     else -> {
                         println("Error!")
                     }
                 }
+                printHelloTable()
             }
             3 -> {
                 println("Exit program! Goodbye!")
+                exitProcess(0)
             }
         }
     }

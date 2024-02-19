@@ -32,4 +32,8 @@ class InMemoryDishDao : DishDao {
         return dish.reviews
     }
 
+    override fun returnAllDishes(): List<DishEntity> {
+        return dishes.toList()
+    }
+
 }

@@ -12,4 +12,5 @@ interface OrderDao {
     fun getCostOfOrder(order : OrderEntity) : Int // return total cost of order
     fun returnOrderById(id : Int) : OrderEntity?
     fun setStatus(order: OrderEntity, status : String)
+    fun returnOrdersByStatus(status: String) : List<OrderEntity>
 }

@@ -42,4 +42,10 @@ class InMemoryOrderDao : OrderDao {
     override fun setStatus(order: OrderEntity, status : String) {
         order.status = status
     }
+
+    override fun returnOrdersByStatus(status: String): List<OrderEntity> {
+        return orders.filter { order ->
+            order.status == status
+        }
+    }
 }

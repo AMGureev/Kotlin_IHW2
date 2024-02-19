@@ -10,4 +10,5 @@ interface DishDao {
     fun returnDishByTitle(title: String) : DishEntity? // return dish by title
     fun leaveReviewToDish(dish: DishEntity, review: ReviewEntity)
     fun returnAllReviewsAboutDish(dish: DishEntity) : List<ReviewEntity>
+    fun returnAllDishes() : List<DishEntity>
 }
