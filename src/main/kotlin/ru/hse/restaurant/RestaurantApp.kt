@@ -9,7 +9,7 @@ class RestaurantApp(
     private val menuDao: MenuDao,
     private val orderDao: OrderDao,
     private val reviewDao: ReviewDao,
-    private val personDao: PersonDao,
+    private val personDao: AccountDao,
 )
 {
     fun leaveReview(personLogin : String, id : Int, dishTitle : String, text : String, stars : Int) {

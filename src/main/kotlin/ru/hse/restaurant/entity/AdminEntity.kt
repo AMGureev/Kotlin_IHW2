@@ -1,3 +1,3 @@
 package ru.hse.restaurant.entity
 
-open class AdminEntity(password: String, login: String) : PersonEntity(password, login)
+open class AdminEntity(password: String, login: String) : AccountEntity(password, login)

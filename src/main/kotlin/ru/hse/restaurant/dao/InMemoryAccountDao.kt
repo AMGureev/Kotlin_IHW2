@@ -2,10 +2,10 @@ package ru.hse.restaurant.dao
 
 import org.mindrot.jbcrypt.BCrypt
 import ru.hse.restaurant.entity.AdminEntity
-import ru.hse.restaurant.entity.PersonEntity
+import ru.hse.restaurant.entity.AccountEntity
 import ru.hse.restaurant.entity.UserEntity
 
-class InMemoryPersonDao : PersonDao {
+class InMemoryAccountDao : AccountDao {
     private var admins = mutableListOf<AdminEntity>()
     private var users = mutableListOf<UserEntity>()
     override fun registerUser(login: String, password: String) {
@@ -18,12 +18,13 @@ class InMemoryPersonDao : PersonDao {
         admins.add(AdminEntity(hashedPassword, login))
     }
 
-    override fun authenticatePerson(inputPassword: String, person : PersonEntity): Boolean {
-        return BCrypt.checkpw(inputPassword, person.password)
+    override fun authenticateAccount(inputPassword: String, account: AccountEntity): Boolean {
+        return BCrypt.checkpw(inputPassword, account.password)
     }
 
     override fun findAccountByLogin(login: String): Boolean {
-        return users.any { it.login == login }
+        val allAccounts = users + admins
+        return allAccounts.any { it.login == login }
     }
 
     override fun saveAllAccounts() {
@@ -34,7 +35,8 @@ class InMemoryPersonDao : PersonDao {
         TODO("Not yet implemented")
     }
 
-    override fun returnAccountByLogin(login: String) : PersonEntity? {
-        return users.find { it.login == login }
+    override fun returnAccountByLogin(login: String) : AccountEntity? {
+        val allAccounts = users + admins
+        return allAccounts.find { it.login == login }
     }
 }
