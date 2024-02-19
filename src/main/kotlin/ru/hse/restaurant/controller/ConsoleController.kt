@@ -59,7 +59,7 @@ class ConsoleController : Controller{
                 }
             }
             3 -> {
-
+                println("Exit program! Goodbye!")
             }
         }
     }
