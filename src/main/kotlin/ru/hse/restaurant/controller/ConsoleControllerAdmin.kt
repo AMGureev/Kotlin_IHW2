@@ -3,6 +3,7 @@ package ru.hse.restaurant.controller
 import ru.hse.restaurant.dao.InMemoryDishDao
 import ru.hse.restaurant.dao.InMemoryMenuDao
 import ru.hse.restaurant.dao.InMemoryOrderDao
+import ru.hse.restaurant.dao.InMemoryReviewDao
 import ru.hse.restaurant.entity.DishEntity
 import ru.hse.restaurant.entity.ReviewEntity
 import kotlin.system.exitProcess
@@ -11,6 +12,7 @@ class ConsoleControllerAdmin : Controller {
     private val dishDao = InMemoryDishDao()
     private val menuDao = InMemoryMenuDao()
     private val orderDao = InMemoryOrderDao()
+    private val reviewDao = InMemoryReviewDao()
     override fun launch() {
         printMainTable()
     }
@@ -18,7 +20,7 @@ class ConsoleControllerAdmin : Controller {
         println("Main admin table")
         println("Choose one of the actions:")
         println("1. Interaction with dishes")
-        println("2. Get stats")
+        println("2. Get stats about dishes")
         println("3. Info about orders")
         println("4. Exit program")
         print("Enter your choose: ")
@@ -134,6 +136,37 @@ class ConsoleControllerAdmin : Controller {
                 // заказам и отзывам
                 // (например, самые популярные блюда, средняя оценка блюд, количество заказов за период).
                 println("Get stats!")
+                println("1. Stats about dish")
+                println("2. Average dishes rating")
+                print("Input your choose: ")
+                val ans = readln()
+                when (ans) {
+                    "1"-> {
+                        print("Input dish's title: ")
+                        val title = readln()
+                        if (dishDao.returnDishByTitle(title) != null) {
+                            println("1. Get average stars")
+                            println("2. Get total reviews")
+                            // еще добавить потом!!!
+                            print("Input your choose: ")
+                            val otv = readln()
+                            when (otv) {
+                                "1" -> {
+                                    getAverageStars(dishDao.returnDishByTitle(title)!!)
+                                }
+                                "2" -> {
+                                    getAllReview(dishDao.returnDishByTitle(title)!!)
+                                }
+                            }
+                        } else {
+                            println("error!")
+                        }
+                    }
+                    "2"->{
+
+                    }
+                }
+
                 printMainTable()
             }
             3-> { // set status...
@@ -289,5 +322,26 @@ class ConsoleControllerAdmin : Controller {
         }
         dishDao.editDish(dishDao.returnDishByTitle(oldTitle)!!, newTitle, newPrice, newDuration, newWeight)
         println("Congratulation!")
+    }
+    private fun getAverageStars(dish: DishEntity) {
+        if (reviewDao.getReviewsAboutDished(dish).isEmpty()) {
+            println("List is empty!")
+            return
+        }
+        var cou = 0
+        for (review in reviewDao.getReviewsAboutDished(dish)){
+            cou += review.stars
+        }
+        println("Average stars = ${cou/reviewDao.getReviewsAboutDished(dish).size}.")
+    }
+    private fun getAllReview(dish : DishEntity) {
+        if (reviewDao.getReviewsAboutDished(dish).isEmpty()) {
+            println("List is empty!")
+            return
+        }
+        var cou = 1
+        for (review in reviewDao.getReviewsAboutDished(dish)){
+            println("${cou++}. Name: ${review.userName}, stars: ${review.stars} ,text: ${review.text}")
+        }
     }
 }
