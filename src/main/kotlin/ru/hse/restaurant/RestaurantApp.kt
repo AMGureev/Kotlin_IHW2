@@ -64,7 +64,12 @@ class RestaurantApp(
     }
     fun payForTheOrder(orderId : Int, money: Int) {
         if (orderDao.returnOrderById(orderId) != null){
+            if (orderDao.getStatus(orderDao.returnOrderById(orderId)!!) != "wait paid"){
+                println("error")
+                return
+            }
             if (orderDao.getCostOfOrder(orderDao.returnOrderById(orderId)!!) <= money){
+                orderDao.setStatus(orderDao.returnOrderById(orderId)!!, "paid")
                 println("congratulation!")
             }
             else {
@@ -77,4 +82,40 @@ class RestaurantApp(
             return
         }
     }
+    fun addDishToMenu(titleDish : String) {
+        if (dishDao.returnDishByTitle(titleDish) == null) {
+            println("error")
+            return
+        }
+        menuDao.addDishToMenu(dishDao.returnDishByTitle(titleDish)!!)
+        println("congratulation!")
+    }
+    fun printAllDishesInMenu() {
+        var cou = 1
+        if (menuDao.returnAllDishes().isEmpty()) {
+            println("menu is empty!")
+            return
+        }
+        println("Menu's dishes:")
+        for (dish in menuDao.returnAllDishes()){
+            println("${cou++}. Dish : , price : ${dish.price}$")
+        }
+    }
+
+    fun printAllReviews(dishTitle : String) {
+        var cou = 1
+        if (dishDao.returnDishByTitle(dishTitle) == null) {
+            println("error")
+            return
+        }
+        if (dishDao.returnAllReviewsAboutDish(dishDao.returnDishByTitle(dishTitle)!!).isEmpty()) {
+            println("reviews list is empty!")
+            return
+        }
+        println("All reviews about this dishes(${dishTitle})")
+        for (review in dishDao.returnAllReviewsAboutDish(dishDao.returnDishByTitle(dishTitle)!!)){
+            println("${cou++}. User : ${review.userName}\nStars : ${review.stars}\nText: ${review.text}")
+        }
+    }
+
 }

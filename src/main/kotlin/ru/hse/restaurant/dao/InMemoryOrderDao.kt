@@ -38,4 +38,8 @@ class InMemoryOrderDao : OrderDao {
     override fun returnOrderById(id: Int): OrderEntity? {
         return orders.find { it.id == id }
     }
+
+    override fun setStatus(order: OrderEntity, status : String) {
+        order.status = status
+    }
 }
