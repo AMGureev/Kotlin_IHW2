@@ -1,9 +1,12 @@
 package ru.hse.restaurant.controller
 
 import ru.hse.restaurant.dao.InMemoryAccountDao
+import ru.hse.restaurant.entity.AdminEntity
 
 class ConsoleController : Controller{
     private val accountDao = InMemoryAccountDao()
+    private val adminController = ConsoleControllerAdmin()
+    private val userController = ConsoleControllerUser()
     override fun launch() {
         printHelloTable()
     }
@@ -26,7 +29,12 @@ class ConsoleController : Controller{
                 print("Input your password: ")
                 val password = readln()
                 if (authenticateUser(login, password)) {
-                    // exit - password and login are corrected!
+                    if (accountDao.returnAccountByLogin(login) is AdminEntity) {
+                        adminController.launch()
+                    }
+                    else {
+                        userController.launch()
+                    }
                 }
             }
             2 -> {
@@ -43,6 +51,7 @@ class ConsoleController : Controller{
                     }
                     "n" -> {
                         registerAccount(login, password, false)
+
                     }
                     else -> {
                         println("Error!")

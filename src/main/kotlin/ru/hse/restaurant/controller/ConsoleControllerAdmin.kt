@@ -1,4 +1,9 @@
 package ru.hse.restaurant.controller
 
-class ConsoleControllerAdmin {
+import ru.hse.restaurant.RestaurantApp
+
+class ConsoleControllerAdmin : Controller {
+    override fun launch() {
+        TODO("Not yet implemented")
+    }
 }
