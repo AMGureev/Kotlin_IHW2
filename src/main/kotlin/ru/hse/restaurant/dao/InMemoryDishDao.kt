@@ -20,15 +20,16 @@ class InMemoryDishDao : DishDao {
         dish.duration = newDuration
     }
 
-    override fun returnDishByTitle(title: String): DishEntity {
-        return dishes.find { it.title == title }!!
+    override fun returnDishByTitle(title: String): DishEntity? {
+        return dishes.find { it.title == title }
     }
 
-    override fun leaveFeedbackToDish(dish: DishEntity, feedback: ReviewEntity) {
-        dish.reviews.addLast(feedback)
+    override fun leaveReviewToDish(dish: DishEntity, review: ReviewEntity) {
+        dish.reviews.addLast(review)
     }
 
     override fun returnAllReviewsAboutDish(dish: DishEntity) : List<ReviewEntity> {
         return dish.reviews
     }
+
 }
