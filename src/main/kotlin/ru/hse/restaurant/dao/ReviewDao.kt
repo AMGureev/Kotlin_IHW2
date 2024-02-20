@@ -8,5 +8,5 @@ interface ReviewDao {
     fun deleteReview(review: ReviewEntity)
     fun editReview(review: ReviewEntity, newStars : Int, newText : String)
     fun getReviewsAboutDished(dish: DishEntity) : List<ReviewEntity>
-
+    fun getAllReviews() : List<ReviewEntity>
 }

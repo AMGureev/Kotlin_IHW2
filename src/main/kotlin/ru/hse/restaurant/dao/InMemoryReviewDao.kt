@@ -24,4 +24,9 @@ class InMemoryReviewDao : ReviewDao {
             review.dish == dish
         }
     }
+
+    override fun getAllReviews(): List<ReviewEntity> {
+        return reviews.toList()
+    }
+
 }

@@ -48,4 +48,20 @@ class InMemoryOrderDao : OrderDao {
             order.status == status
         }
     }
+
+    override fun returnRevenue(): Int {
+        var revenue = 0
+        for (elem in returnOrdersByStatus("paid")) {
+            for (dish in elem.dishes) {
+                revenue += dish.price
+            }
+        }
+        return revenue
+    }
+
+    override fun returnOrdersByUser(user: UserEntity): List<OrderEntity> {
+        return orders.filter { order ->
+            order.person == user
+        }
+    }
 }

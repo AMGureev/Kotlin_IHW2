@@ -138,6 +138,7 @@ class ConsoleControllerAdmin : Controller {
                 println("Get stats!")
                 println("1. Stats about dish")
                 println("2. Average dishes rating")
+                println("3. Revenue")
                 print("Input your choose: ")
                 val ans = readln()
                 when (ans) {
@@ -146,7 +147,7 @@ class ConsoleControllerAdmin : Controller {
                         val title = readln()
                         if (dishDao.returnDishByTitle(title) != null) {
                             println("1. Get average stars")
-                            println("2. Get total reviews")
+                            println("2. Get all reviews")
                             // еще добавить потом!!!
                             print("Input your choose: ")
                             val otv = readln()
@@ -163,7 +164,13 @@ class ConsoleControllerAdmin : Controller {
                         }
                     }
                     "2"->{
-
+                        getAverageStarsAllDishes()
+                    }
+                    "3" -> {
+                        returnRevenue()
+                    }
+                    else-> {
+                        println("Go to main table...")
                     }
                 }
 
@@ -171,42 +178,49 @@ class ConsoleControllerAdmin : Controller {
             }
             3-> { // set status...
                 /*
-                1. В процессе
-                2. Ожидает оплаты
-                3. Отменено
-                4. Оплачено
+                1. В процессе cooking
+                2. Ожидает оплаты ready
+                3. Отменено canceled
+                4. Оплачено paid
                  */
-
+                println("1. In process - 'cooking'")
+                println("2. Wait to pay - 'ready'")
+                println("3. Cancelled by the user - 'canceled'")
+                println("4. Paid for by the user - 'paid'")
                 print("Select one of the order's status: ")
                 val res = readln()
                 var coun = 1
                 when (res) {
                     "1" -> {
-                        println("All ... dishes:")
-                        for (order in orderDao.returnOrdersByStatus(res)) {
+                        val status = "cooking"
+                        println("All cooking orders:")
+                        for (order in orderDao.returnOrdersByStatus(status)) {
                             println("${coun++}. ID: ${order.id}, person: ${order.person.login}, dishes: ${order.dishes}")
                         }
                     }
                     "2" -> {
-                        println("All ... dishes:")
-                        for (order in orderDao.returnOrdersByStatus(res)) {
+                        val status = "ready"
+                        println("All ready orders:")
+                        for (order in orderDao.returnOrdersByStatus(status)) {
                             println("${coun++}. ID: ${order.id}, person: ${order.person.login}, dishes: ${order.dishes}")
                         }
                     }
                     "3" -> {
-                        println("All ... dishes:")
-                        for (order in orderDao.returnOrdersByStatus(res)) {
+                        val status = "canceled"
+                        println("All canceled orders:")
+                        for (order in orderDao.returnOrdersByStatus(status)) {
                             println("${coun++}. ID: ${order.id}, person: ${order.person.login}, dishes: ${order.dishes}")
                         }
                     }
                     "4" -> {
-                        println("All ... dishes:")
-                        for (order in orderDao.returnOrdersByStatus(res)) {
+                        val status = "paid"
+                        println("All paid orders:")
+                        for (order in orderDao.returnOrdersByStatus(status)) {
                             println("${coun++}. ID: ${order.id}, person: ${order.person.login}, dishes: ${order.dishes}")
                         }
                     }
                     else -> {
-                        "error"
+                        println("Go to main table...")
                     }
                 }
                 printMainTable()
@@ -343,5 +357,15 @@ class ConsoleControllerAdmin : Controller {
         for (review in reviewDao.getReviewsAboutDished(dish)){
             println("${cou++}. Name: ${review.userName}, stars: ${review.stars} ,text: ${review.text}")
         }
+    }
+    private fun getAverageStarsAllDishes() {
+        var averageStars = 0
+        for (elem in reviewDao.getAllReviews()) {
+            averageStars += elem.stars
+        }
+        println("Average stars all dishes = ${averageStars/reviewDao.getAllReviews().size}.")
+    }
+    private fun returnRevenue() {
+        println("Total revenue - ${orderDao.returnRevenue()}$.")
     }
 }
