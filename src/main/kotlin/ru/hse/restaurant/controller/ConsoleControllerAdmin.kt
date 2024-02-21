@@ -1,14 +1,13 @@
 package ru.hse.restaurant.controller
 
-import ru.hse.restaurant.dao.InMemoryDishDao
-import ru.hse.restaurant.dao.InMemoryMenuDao
-import ru.hse.restaurant.dao.InMemoryOrderDao
-import ru.hse.restaurant.dao.InMemoryReviewDao
+import ru.hse.restaurant.dao.*
+import ru.hse.restaurant.entity.AccountEntity
+import ru.hse.restaurant.entity.AdminEntity
 import ru.hse.restaurant.entity.DishEntity
 import ru.hse.restaurant.entity.ReviewEntity
 import kotlin.system.exitProcess
 
-class ConsoleControllerAdmin : Controller {
+class ConsoleControllerAdmin(admin : AccountEntity) : Controller {
     private val dishDao = InMemoryDishDao()
     private val menuDao = InMemoryMenuDao()
     private val orderDao = InMemoryOrderDao()

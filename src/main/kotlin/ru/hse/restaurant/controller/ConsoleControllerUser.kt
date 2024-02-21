@@ -1,12 +1,12 @@
 package ru.hse.restaurant.controller
 
-import ru.hse.restaurant.dao.InMemoryDishDao
-import ru.hse.restaurant.dao.InMemoryMenuDao
-import ru.hse.restaurant.dao.InMemoryOrderDao
-import ru.hse.restaurant.dao.InMemoryReviewDao
+import ru.hse.restaurant.dao.*
+import ru.hse.restaurant.entity.AccountEntity
+import ru.hse.restaurant.entity.DishEntity
+import ru.hse.restaurant.entity.UserEntity
 import kotlin.system.exitProcess
 
-class ConsoleControllerUser : Controller{
+class ConsoleControllerUser(val user: AccountEntity) : Controller{
     private val dishDao = InMemoryDishDao()
     private val menuDao = InMemoryMenuDao()
     private val orderDao = InMemoryOrderDao()
@@ -30,7 +30,29 @@ class ConsoleControllerUser : Controller{
             }
             "2"-> {
                 println("2. Make an order")
-                // делает заказ
+                /* формат такой:
+                если одно блюдо - то просто название блюда
+                если блюд несколько - то писать блюдо x"count"
+                закончить формировать заказ: end
+                 */
+                println("Please, input dish's title: ")
+                var ans = readln()
+                val list = mutableListOf<DishEntity>()
+                while (ans != "end") {
+                    if (menuDao.returnDishesByTitle(ans) == null) {
+                        println("error")
+                    }
+                    else {
+                        list.add(menuDao.returnDishesByTitle(ans)!!)
+                    }
+                    ans = readln()
+                }
+                if (list.isEmpty()) {
+                    println("Zero dishes... ERROR")
+                } else {
+                    // создается заказ
+                    orderDao.createOrder(user as UserEntity, list.toList())
+                }
             }
             "3"-> {
                 println("3. Interaction with my orders")
@@ -42,6 +64,15 @@ class ConsoleControllerUser : Controller{
                 val otv = readln()
                 when (otv) {
                     "1"-> {
+                        println("1. All orders")
+
+                    }
+                    "2"-> {
+                        println("2. Cooking orders")
+
+                    }
+                    "3"-> {
+                        println("3. Orders awaiting payment")
 
                     }
                 }
@@ -66,6 +97,6 @@ class ConsoleControllerUser : Controller{
     private fun returnOrdersByUser() {
         /*
             TODO
-         */
+        */
     }
 }

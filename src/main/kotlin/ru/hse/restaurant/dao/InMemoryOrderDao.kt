@@ -18,9 +18,21 @@ class InMemoryOrderDao : OrderDao {
     override fun cancelOrder(order: OrderEntity) {
         orders.remove(order)
     }
-
+    fun processOrder(order: OrderEntity) {
+        val threads = order.dishes.map{ dish->
+            Thread {
+                cookDish(dish)
+            }
+        }
+        threads.forEach { it.start() }
+        threads.forEach { it.join() }
+        order.status = "ready"
+    }
     override fun getStatus(order: OrderEntity): String {
         return order.status
+    }
+    private fun cookDish(dish : DishEntity) {
+        Thread.sleep(dish.duration.toLong())
     }
 
     override fun payOrder(order: OrderEntity) {
@@ -64,4 +76,5 @@ class InMemoryOrderDao : OrderDao {
             order.person == user
         }
     }
+
 }

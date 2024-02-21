@@ -6,8 +6,6 @@ import kotlin.system.exitProcess
 
 class ConsoleController : Controller{
     private val accountDao = InMemoryAccountDao()
-    private val adminController = ConsoleControllerAdmin()
-    private val userController = ConsoleControllerUser()
     override fun launch() {
         printHelloTable()
     }
@@ -31,9 +29,11 @@ class ConsoleController : Controller{
                 val password = readln()
                 if (authenticateUser(login, password)) {
                     if (accountDao.returnAccountByLogin(login) is AdminEntity) {
+                        val adminController = ConsoleControllerAdmin(accountDao.returnAccountByLogin(login)!!)
                         adminController.launch()
                     }
                     else {
+                        val userController = ConsoleControllerUser(accountDao.returnAccountByLogin(login)!!)
                         userController.launch()
                     }
                 }
