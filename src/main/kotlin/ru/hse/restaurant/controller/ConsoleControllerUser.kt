@@ -18,8 +18,8 @@ class ConsoleControllerUser(val user: AccountEntity) : Controller{
         println("Main user table")
         println("Choose one of the actions:")
         println("1. View the contents of the menu")
-        println("2. Make an order")
-        println("3. Interaction with my orders")
+        println("2. Make a new order")
+        println("3. Interaction with my orders (and edit order)")
         println("4. Exit program")
         print("Enter your choose: ")
         val ans = readln()
@@ -38,12 +38,19 @@ class ConsoleControllerUser(val user: AccountEntity) : Controller{
                 println("Please, input dish's title: ")
                 var ans = readln()
                 val list = mutableListOf<DishEntity>()
+                val regex = Regex("""(.+?)\s*x(\d+)""")
                 while (ans != "end") {
-                    if (menuDao.returnDishesByTitle(ans) == null) {
-                        println("error")
-                    }
-                    else {
-                        list.add(menuDao.returnDishesByTitle(ans)!!)
+                    val matchResult = regex.matchEntire(ans)
+                    if (matchResult != null) {
+                        val (dish, quantity) = matchResult.destructured
+                        if (menuDao.returnDishesByTitle(dish) == null) {
+                            println("error")
+                        } else {
+                            for (i in 0..quantity) {
+
+                            }
+                            list.add(menuDao.returnDishesByTitle(ans)!!)
+                        }
                     }
                     ans = readln()
                 }
@@ -57,23 +64,62 @@ class ConsoleControllerUser(val user: AccountEntity) : Controller{
             "3"-> {
                 println("3. Interaction with my orders")
                 println("Choose one of the actions:")
-                println("1. All orders")
-                println("2. Cooking orders")
-                println("3. Orders awaiting payment")
+                println("1. Print all orders")
+                println("2. Print cooking orders")
+                println("3. Print orders awaiting payment")
+                println("4. Print paid orders")
                 print("Enter your choose: ")
                 val otv = readln()
+                var coun = 0
                 when (otv) {
-                    "1"-> {
-                        println("1. All orders")
-
+                    "1" -> {
+                        println("All orders:")
+                        if (orderDao.returnOrdersByUser(user as UserEntity).isEmpty()) {
+                            println("Orders is empty!")
+                        } else {
+                            for (order in orderDao.returnOrdersByUser(user)) {
+                                println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}.")
+                            }
+                        }
                     }
-                    "2"-> {
-                        println("2. Cooking orders")
-
+                    "2" -> {
+                        val status = "cooking"
+                        println("All cooking orders:")
+                        for (order in orderDao.returnOrdersByStatus(status)) {
+                            if (order in orderDao.returnOrdersByUser(user as UserEntity)) {
+                                println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
+                            }
+                        }
+                        if (coun == 0) {
+                            println("Orders is empty!")
+                        }
                     }
-                    "3"-> {
-                        println("3. Orders awaiting payment")
-
+                    "3" -> {
+                        val status = "ready"
+                        println("Orders awaiting payment:")
+                        for (order in orderDao.returnOrdersByStatus(status)) {
+                            if (order in orderDao.returnOrdersByUser(user as UserEntity)) {
+                                println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
+                            }
+                        }
+                        if (coun == 0) {
+                            println("Orders is empty!")
+                        }
+                    }
+                    "4" -> {
+                        val status = "paid"
+                        println("Orders awaiting payment:")
+                        for (order in orderDao.returnOrdersByStatus(status)) {
+                            if (order in orderDao.returnOrdersByUser(user as UserEntity)) {
+                                println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
+                            }
+                        }
+                        if (coun == 0) {
+                            println("Orders is empty!")
+                        }
+                    }
+                    else -> {
+                        println("Go to main table...")
                     }
                 }
             }
