@@ -1,11 +1,16 @@
 package ru.hse.restaurant.controller
 
-import ru.hse.restaurant.dao.InMemoryAccountDao
+import ru.hse.restaurant.dao.*
 import ru.hse.restaurant.entity.AdminEntity
 import kotlin.system.exitProcess
 
-class ConsoleController : Controller{
+class ConsoleController() : Controller{
     private val accountDao = InMemoryAccountDao()
+    private val dishDao = InMemoryDishDao()
+    private val menuDao = InMemoryMenuDao()
+    private val orderDao = InMemoryOrderDao()
+    private val reviewDao = InMemoryReviewDao()
+    private val kitchenApp = KitchenApp()
     override fun launch() {
         printHelloTable()
     }
@@ -29,13 +34,15 @@ class ConsoleController : Controller{
                 val password = readln()
                 if (authenticateUser(login, password)) {
                     if (accountDao.returnAccountByLogin(login) is AdminEntity) {
-                        val adminController = ConsoleControllerAdmin(accountDao.returnAccountByLogin(login)!!)
+                        val adminController = ConsoleControllerAdmin(accountDao.returnAccountByLogin(login)!!, this, dishDao, menuDao, orderDao, reviewDao, kitchenApp)
                         adminController.launch()
                     }
                     else {
-                        val userController = ConsoleControllerUser(accountDao.returnAccountByLogin(login)!!)
+                        val userController = ConsoleControllerUser(accountDao.returnAccountByLogin(login)!!, this, dishDao, menuDao, orderDao, reviewDao, kitchenApp)
                         userController.launch()
                     }
+                } else {
+                    printHelloTable()
                 }
             }
             2 -> {

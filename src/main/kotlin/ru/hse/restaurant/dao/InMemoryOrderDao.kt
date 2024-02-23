@@ -11,7 +11,7 @@ class InMemoryOrderDao : OrderDao {
     private var lastId = 0
     override fun createOrder(person : UserEntity, dishes : List<DishEntity>) : OrderEntity {
         val time = LocalDateTime.now()
-        val order = OrderEntity(lastId, person, "create", dishes, time)
+        val order = OrderEntity(lastId, person, "cooking", dishes, time)
         orders.add(order)
         lastId += 1
         return order

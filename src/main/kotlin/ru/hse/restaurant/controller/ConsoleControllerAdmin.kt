@@ -7,11 +7,13 @@ import ru.hse.restaurant.entity.DishEntity
 import ru.hse.restaurant.entity.ReviewEntity
 import kotlin.system.exitProcess
 
-class ConsoleControllerAdmin(admin : AccountEntity) : Controller {
-    private val dishDao = InMemoryDishDao()
-    private val menuDao = InMemoryMenuDao()
-    private val orderDao = InMemoryOrderDao()
-    private val reviewDao = InMemoryReviewDao()
+class ConsoleControllerAdmin(admin : AccountEntity,
+                             private val console: ConsoleController,
+                             private val dishDao : InMemoryDishDao,
+                             private val menuDao : InMemoryMenuDao,
+                             private val orderDao : InMemoryOrderDao,
+                             private val reviewDao : InMemoryReviewDao,
+                             private val kitchenApp: KitchenApp) : Controller {
     override fun launch() {
         printMainTable()
     }
@@ -21,7 +23,9 @@ class ConsoleControllerAdmin(admin : AccountEntity) : Controller {
         println("1. Interaction with dishes")
         println("2. Get stats about dishes")
         println("3. Info about orders")
-        println("4. Exit program")
+        println("4. Info about accounts")
+        println("5. Sign out")
+        println("6. Exit program")
         print("Enter your choose: ")
         var ans : Int = 0
         try {
@@ -224,7 +228,15 @@ class ConsoleControllerAdmin(admin : AccountEntity) : Controller {
                 }
                 printMainTable()
             }
-            4->{
+            4-> {
+                println("Info about accounts")
+                // TODO
+            }
+            5-> {
+                println("Sign out!")
+                console.launch()
+            }
+            6->{
                 println("Exit program! Goodbye!")
                 exitProcess(0)
             }
@@ -270,7 +282,7 @@ class ConsoleControllerAdmin(admin : AccountEntity) : Controller {
     }
 
     private fun deleteDish(title : String) {
-        if (dishDao.returnDishByTitle("title") == null) {
+        if (dishDao.returnDishByTitle(title) == null) {
             // проверить - есть ли это блюдо в активных заказах
             println("Error!")
             return
