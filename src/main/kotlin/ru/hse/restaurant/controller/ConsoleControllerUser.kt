@@ -11,6 +11,7 @@ class ConsoleControllerUser(val user: AccountEntity) : Controller{
     private val menuDao = InMemoryMenuDao()
     private val orderDao = InMemoryOrderDao()
     private val reviewDao = InMemoryReviewDao()
+    private val kitchenApp = KitchenApp()
     override fun launch() {
         printMainTable()
     }
@@ -20,7 +21,8 @@ class ConsoleControllerUser(val user: AccountEntity) : Controller{
         println("1. View the contents of the menu")
         println("2. Make a new order")
         println("3. Interaction with my orders (and edit order)")
-        println("4. Exit program")
+        println("4. Make a review")
+        println("5. Exit program")
         print("Enter your choose: ")
         val ans = readln()
         when (ans) {
@@ -46,10 +48,9 @@ class ConsoleControllerUser(val user: AccountEntity) : Controller{
                         if (menuDao.returnDishesByTitle(dish) == null) {
                             println("error")
                         } else {
-                            for (i in 0..quantity) {
-
+                            repeat(quantity.toInt()) {
+                                list.add(menuDao.returnDishesByTitle(dish)!!)
                             }
-                            list.add(menuDao.returnDishesByTitle(ans)!!)
                         }
                     }
                     ans = readln()
@@ -58,7 +59,8 @@ class ConsoleControllerUser(val user: AccountEntity) : Controller{
                     println("Zero dishes... ERROR")
                 } else {
                     // создается заказ
-                    orderDao.createOrder(user as UserEntity, list.toList())
+                    println("Your order has been formed and submitted for processing!")
+                    kitchenApp.addCookingOrder(orderDao.createOrder(user as UserEntity, list.toList()))
                 }
             }
             "3"-> {
@@ -123,7 +125,48 @@ class ConsoleControllerUser(val user: AccountEntity) : Controller{
                     }
                 }
             }
-            "4" ->{
+            "4" -> {
+                println("Make a review!")
+                var coun = 1
+                for (order in orderDao.returnOrdersByStatus("paid")) {
+                    if (order in orderDao.returnOrdersByUser(user as UserEntity)) {
+                        println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
+                    }
+                }
+                print("Input ID: ")
+                try {
+                    val otv = readln().toInt()
+                    coun = 1
+                    if (orderDao.returnOrderById(otv) != null && orderDao.returnOrderById(otv)!!.status == "paid") {
+                        for (dish in orderDao.returnOrderById(otv)!!.dishes) {
+                            println("${coun++}. Dish: ${dish.title}, price: ${dish.price}.")
+                        }
+                        print("Input title dish: ")
+                        val dish = readln()
+                        if (dishDao.returnDishByTitle(dish) in menuDao.returnAllDishes() && dishDao.returnDishByTitle(dish) in orderDao.returnOrderById(otv)!!.dishes) {
+                            print("Input stars (0-5): ")
+                            val stars = readln().toInt()
+                            print("Input text: ")
+                            val text = readln()
+                            if (stars in 0..5){
+                                if (text.length >= 20) {
+                                    reviewDao.createReview(dishDao.returnDishByTitle(dish)!!, user.login, text, stars)
+                                    println("congratulation!")
+                                }
+                                else {
+                                    println("error")
+                                }
+                            }
+                            else{
+                                println("error")
+                            }
+                        }
+                    }
+                } catch (ex : Exception) {
+                    println("Error!")
+                }
+            }
+            "5" -> {
                 println("Exit program! Goodbye!")
                 exitProcess(0)
             }

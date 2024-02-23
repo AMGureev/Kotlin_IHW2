@@ -9,15 +9,18 @@ import java.time.LocalTime
 class InMemoryOrderDao : OrderDao {
     private var orders = mutableListOf<OrderEntity>()
     private var lastId = 0
-    override fun createOrder(person : UserEntity, dishes : List<DishEntity>) {
+    override fun createOrder(person : UserEntity, dishes : List<DishEntity>) : OrderEntity {
         val time = LocalDateTime.now()
-        orders.add(OrderEntity(lastId, person, "create", dishes, time))
+        val order = OrderEntity(lastId, person, "create", dishes, time)
+        orders.add(order)
         lastId += 1
+        return order
     }
 
     override fun cancelOrder(order: OrderEntity) {
         orders.remove(order)
     }
+    /*
     fun processOrder(order: OrderEntity) {
         val threads = order.dishes.map{ dish->
             Thread {
@@ -28,12 +31,15 @@ class InMemoryOrderDao : OrderDao {
         threads.forEach { it.join() }
         order.status = "ready"
     }
+     */
     override fun getStatus(order: OrderEntity): String {
         return order.status
     }
+    /*
     private fun cookDish(dish : DishEntity) {
         Thread.sleep(dish.duration.toLong())
     }
+     */
 
     override fun payOrder(order: OrderEntity) {
         order.status = "paid"
