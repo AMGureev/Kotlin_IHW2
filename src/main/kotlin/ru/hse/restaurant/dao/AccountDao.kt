@@ -10,7 +10,5 @@ interface AccountDao {
     fun saveAllAccounts() // save all accounts in json file
     fun fillingAccountsData() // data recovery from file
     fun returnAccountByLogin(login : String) : AccountEntity?
-    // savealladmins
-    // saveallusers
     fun returnAllAccounts() : List<AccountEntity>
 }

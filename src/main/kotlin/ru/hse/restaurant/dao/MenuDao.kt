@@ -8,4 +8,6 @@ interface MenuDao {
     fun deleteDishWithMenu(dish: DishEntity) // delete one dish to menu
     fun returnAllDishes() : List<DishEntity> // return all dishes
     fun returnDishesByTitle(title : String) : DishEntity?
+    fun fillingMenuData()
+    fun saveAllMenu()
 }

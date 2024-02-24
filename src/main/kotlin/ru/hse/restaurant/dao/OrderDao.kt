@@ -16,4 +16,6 @@ interface OrderDao {
     fun returnRevenue() : Int
     fun returnOrdersByUser(user: UserEntity) : List<OrderEntity>
     fun addDishToOrder(order: OrderEntity, dish : DishEntity)
+    fun fillingOrdersData()
+    fun saveAllOrders()
 }

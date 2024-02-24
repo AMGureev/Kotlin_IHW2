@@ -11,4 +11,6 @@ interface DishDao {
     fun leaveReviewToDish(dish: DishEntity, review: ReviewEntity)
     fun returnAllReviewsAboutDish(dish: DishEntity) : List<ReviewEntity>
     fun returnAllDishes() : List<DishEntity>
+    fun fillingDishesData()
+    fun saveAllDishes()
 }

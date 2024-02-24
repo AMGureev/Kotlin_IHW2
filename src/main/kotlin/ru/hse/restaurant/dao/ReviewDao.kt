@@ -9,4 +9,6 @@ interface ReviewDao {
     fun editReview(review: ReviewEntity, newStars : Int, newText : String)
     fun getReviewsAboutDished(dish: DishEntity) : List<ReviewEntity>
     fun getAllReviews() : List<ReviewEntity>
+    fun saveAllReviews()
+    fun fillingReviewsData()
 }
