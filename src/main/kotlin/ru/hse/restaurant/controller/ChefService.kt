@@ -43,6 +43,7 @@ class ChefService(val kitchen: KitchenApp): ChefDao {
         kitchen.addFinishedOrder(order)
         isFree = true
         println("ORDER HAS BEEN COOOOOOOCK")
+        this.kitchen.processOrders() // start process (because this chef is free)
     }
     fun cancelOrder() {
         try {

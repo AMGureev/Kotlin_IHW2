@@ -208,38 +208,40 @@ class ConsoleControllerUser(private val user: AccountEntity,
                     try {
                         val otv = readln().toInt()
                         coun = 1
-                        if (orderDao.returnOrderById(otv) != null && orderDao.returnOrderById(otv)!!.status == "paid") {
-                            for (dish in orderDao.returnOrderById(otv)!!.dishes) {
-                                println("${coun++}. Dish: ${dish.title}, price: ${dish.price}.")
-                            }
-                            print("Input title dish: ")
-                            val dish = readln()
-                            if (dishDao.returnDishByTitle(dish) in menuDao.returnAllDishes() && dishDao.returnDishByTitle(
-                                    dish
-                                ) in orderDao.returnOrderById(otv)!!.dishes
-                            ) {
-                                print("Input stars (0-5): ")
-                                try {
-                                    val stars = readln().toInt()
-                                    print("Input text: ")
-                                    val text = readln()
-                                    if (stars in 0..5) {
-                                        if (text.length >= 20) {
-                                            reviewDao.createReview(
-                                                dishDao.returnDishByTitle(dish)!!,
-                                                user.login,
-                                                text,
-                                                stars
-                                            )
-                                            println("congratulation!")
+                        if (orderDao.returnOrderById(otv)!! in orderDao.returnOrdersByUser(user as UserEntity)) {
+                            if (orderDao.returnOrderById(otv) != null && orderDao.returnOrderById(otv)!!.status == "paid") {
+                                for (dish in orderDao.returnOrderById(otv)!!.dishes) {
+                                    println("${coun++}. Dish: ${dish.title}, price: ${dish.price}.")
+                                }
+                                print("Input title dish: ")
+                                val dish = readln()
+                                if (dishDao.returnDishByTitle(dish) in menuDao.returnAllDishes() && dishDao.returnDishByTitle(
+                                        dish
+                                    ) in orderDao.returnOrderById(otv)!!.dishes
+                                ) {
+                                    print("Input stars (0-5): ")
+                                    try {
+                                        val stars = readln().toInt()
+                                        print("Input text: ")
+                                        val text = readln()
+                                        if (stars in 0..5) {
+                                            if (text.length >= 20) {
+                                                reviewDao.createReview(
+                                                    dishDao.returnDishByTitle(dish)!!,
+                                                    user.login,
+                                                    text,
+                                                    stars
+                                                )
+                                                println("congratulation!")
+                                            } else {
+                                                println("error")
+                                            }
                                         } else {
                                             println("error")
                                         }
-                                    } else {
-                                        println("error")
+                                    } catch (ex: Exception) {
+                                        println("Error!")
                                     }
-                                } catch (ex: Exception) {
-                                    println("Error!")
                                 }
                             }
                         }
@@ -253,8 +255,25 @@ class ConsoleControllerUser(private val user: AccountEntity,
                 console.launch()
             }
             "6" -> {
-                println("Exit program! Goodbye!")
-                exitProcess(0)
+                if (orderDao.returnOrdersByStatus("cooking").isNotEmpty()) {
+                    println("Attention! ${orderDao.returnOrdersByStatus("cooking").size} orders are cooking! If you exit, these orders aren't saving!")
+                    print("Exit or not?(EXIT/other): ")
+                    val otv = readln()
+                    when (otv) {
+                        "EXIT" -> {
+                            this.console.saveAllInformationToJson()
+                            println("Exit program! Goodbye!")
+                            exitProcess(0)
+                        }
+                        else -> {
+                            println("THX YOU")
+                        }
+                    }
+                } else {
+                    this.console.saveAllInformationToJson()
+                    println("Exit program! Goodbye!")
+                    exitProcess(0)
+                }
             }
         }
         printMainTable()
@@ -269,10 +288,5 @@ class ConsoleControllerUser(private val user: AccountEntity,
         for (dish in menuDao.returnAllDishes()){
             println("${cou++}. Title: ${dish.title}, price: ${dish.price}\$, weight: ${dish.weight}.")
         }
-    }
-    private fun returnOrdersByUser() {
-        /*
-            TODO
-        */
     }
 }

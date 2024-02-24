@@ -64,11 +64,29 @@ class ConsoleController() : Controller{
                         println("Error!")
                     }
                 }
+                saveAllInformationToJson()
                 printHelloTable()
             }
             3 -> {
-                println("Exit program! Goodbye!")
-                exitProcess(0)
+                if (orderDao.returnOrdersByStatus("cooking").isNotEmpty()) {
+                    println("Attention! ${orderDao.returnOrdersByStatus("cooking").size} orders are cooking! If you exit, these orders aren't saving!")
+                    print("Exit or not?(EXIT/other): ")
+                    val otv = readln()
+                    when (otv) {
+                        "EXIT" -> {
+                            saveAllInformationToJson()
+                            println("Exit program! Goodbye!")
+                            exitProcess(0)
+                        }
+                        else -> {
+                            println("THX YOU")
+                        }
+                    }
+                } else {
+                    saveAllInformationToJson()
+                    println("Exit program! Goodbye!")
+                    exitProcess(0)
+                }
             }
         }
     }
@@ -102,11 +120,19 @@ class ConsoleController() : Controller{
         }
     }
 
-    private fun saveAllInformationAboutAccountsToJson() { // save all information about accounts to Json file
+    fun saveAllInformationToJson() { // save all information about accounts to Json file
         accountDao.saveAllAccounts()
+        dishDao.saveAllDishes()
+        menuDao.saveAllMenu()
+        reviewDao.saveAllReviews()
+        orderDao.saveAllOrders()
     }
 
-    private fun initialFillingOfAccountsFile() { // get information from json file
+    fun initialFillingOfFiles() { // get information from json file
         accountDao.fillingAccountsData()
+        dishDao.fillingDishesData()
+        menuDao.fillingMenuData()
+        reviewDao.fillingReviewsData()
+        orderDao.fillingOrdersData()
     }
 }

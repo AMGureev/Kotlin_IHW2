@@ -260,8 +260,25 @@ class ConsoleControllerAdmin(admin : AccountEntity,
                 console.launch()
             }
             6->{
-                println("Exit program! Goodbye!")
-                exitProcess(0)
+                if (orderDao.returnOrdersByStatus("cooking").isNotEmpty()) {
+                    println("Attention! ${orderDao.returnOrdersByStatus("cooking").size} orders are cooking! If you exit, these orders aren't saving!")
+                    print("Exit or not?(EXIT/other): ")
+                    val otv = readln()
+                    when (otv) {
+                        "EXIT" -> {
+                            this.console.saveAllInformationToJson()
+                            println("Exit program! Goodbye!")
+                            exitProcess(0)
+                        }
+                        else -> {
+                            println("THX YOU")
+                        }
+                    }
+                } else {
+                    this.console.saveAllInformationToJson()
+                    println("Exit program! Goodbye!")
+                    exitProcess(0)
+                }
             }
         }
         printMainTable()
