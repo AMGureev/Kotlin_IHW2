@@ -1,10 +1,7 @@
 package ru.hse.restaurant.controller
 
 import ru.hse.restaurant.dao.*
-import ru.hse.restaurant.entity.AccountEntity
-import ru.hse.restaurant.entity.AdminEntity
-import ru.hse.restaurant.entity.DishEntity
-import ru.hse.restaurant.entity.ReviewEntity
+import ru.hse.restaurant.entity.*
 import kotlin.system.exitProcess
 
 class ConsoleControllerAdmin(admin : AccountEntity,
@@ -13,6 +10,7 @@ class ConsoleControllerAdmin(admin : AccountEntity,
                              private val menuDao : InMemoryMenuDao,
                              private val orderDao : InMemoryOrderDao,
                              private val reviewDao : InMemoryReviewDao,
+                             private val accountDao : InMemoryAccountDao,
                              private val kitchenApp: KitchenApp) : Controller {
     override fun launch() {
         printMainTable()
@@ -38,12 +36,12 @@ class ConsoleControllerAdmin(admin : AccountEntity,
         when (ans) {
             1-> {
                 println("Interaction with dishes!")
-                println("Choose one of the actions: ")
                 println("1. Create new dish")
                 println("2. Delete dish")
                 println("3. Check all dishes")
                 println("4. Add a dish to the menu")
                 println("5. Edit info about dish")
+                print("Choose one of the actions: ")
                 try {
                     ans = readln().toInt()
                 }
@@ -57,13 +55,17 @@ class ConsoleControllerAdmin(admin : AccountEntity,
                         print("Input title: ")
                         val title = readln()
                         print("Input price: ")
-                        val price = readln().toInt()
-                        print("Input duration: ")
-                        val duration = readln().toInt()
-                        print("Input weight: ")
-                        val weight = readln().toDouble()
-                        createNewDish(title, price, duration, weight)
-                        printMainTable()
+                        try {
+                            val price = readln().toInt()
+                            print("Input duration: ")
+                            val duration = readln().toInt()
+                            print("Input weight: ")
+                            val weight = readln().toDouble()
+                            createNewDish(title, price, duration, weight)
+                            printMainTable()
+                        } catch (ex: Exception){
+                            println("error to convert to int...")
+                        }
                     }
                     2-> {
                         println("Delete dish!")
@@ -200,12 +202,18 @@ class ConsoleControllerAdmin(admin : AccountEntity,
                         for (order in orderDao.returnOrdersByStatus(status)) {
                             println("${coun++}. ID: ${order.id}, person: ${order.person.login}, dishes: ${order.dishes}")
                         }
+                        if (coun == 1) {
+                            println("Zero cooking orders")
+                        }
                     }
                     "2" -> {
                         val status = "ready"
                         println("All ready orders:")
                         for (order in orderDao.returnOrdersByStatus(status)) {
                             println("${coun++}. ID: ${order.id}, person: ${order.person.login}, dishes: ${order.dishes}")
+                        }
+                        if (coun == 1) {
+                            println("Zero ready orders")
                         }
                     }
                     "3" -> {
@@ -214,12 +222,18 @@ class ConsoleControllerAdmin(admin : AccountEntity,
                         for (order in orderDao.returnOrdersByStatus(status)) {
                             println("${coun++}. ID: ${order.id}, person: ${order.person.login}, dishes: ${order.dishes}")
                         }
+                        if (coun == 1) {
+                            println("Zero canceled orders")
+                        }
                     }
                     "4" -> {
                         val status = "paid"
                         println("All paid orders:")
                         for (order in orderDao.returnOrdersByStatus(status)) {
                             println("${coun++}. ID: ${order.id}, person: ${order.person.login}, dishes: ${order.dishes}")
+                        }
+                        if (coun == 1) {
+                            println("Zero paid orders")
                         }
                     }
                     else -> {
@@ -230,7 +244,16 @@ class ConsoleControllerAdmin(admin : AccountEntity,
             }
             4-> {
                 println("Info about accounts")
-                // TODO
+                var coun = 1
+                for (acc in accountDao.returnAllAccounts()) {
+                    println("${coun++}. Login: ${acc.login}, rule: ${if (acc is AdminEntity) {
+                        "admin"
+                    } else {
+                        "user"
+                    }}.${if (acc is AdminEntity) {""} else {"\n" +
+                            "Count of orders: ${orderDao.returnOrdersByUser(acc as UserEntity).size}"}}")
+                }
+
             }
             5-> {
                 println("Sign out!")
@@ -241,6 +264,7 @@ class ConsoleControllerAdmin(admin : AccountEntity,
                 exitProcess(0)
             }
         }
+        printMainTable()
     }
     private fun createNewDish( title: String,
                        price: Int,
@@ -303,6 +327,10 @@ class ConsoleControllerAdmin(admin : AccountEntity,
     private fun addDishToMenu(titleDish : String) {
         if (dishDao.returnDishByTitle(titleDish) == null) {
             println("error")
+            return
+        }
+        if (dishDao.returnDishByTitle(titleDish)!! in menuDao.returnAllDishes()){
+            println("This dish already on menu!")
             return
         }
         menuDao.addDishToMenu(dishDao.returnDishByTitle(titleDish)!!)

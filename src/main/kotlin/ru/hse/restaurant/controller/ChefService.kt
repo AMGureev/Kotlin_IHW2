@@ -8,11 +8,13 @@ import kotlin.concurrent.thread
 
 class ChefService(val kitchen: KitchenApp): ChefDao {
     private var isFree = true
+    var countDishes = 0
     var order : OrderEntity? = null
     private var process : Thread? = null
     override fun cooking(order: OrderEntity): OrderEntity {
         this.order = order
         isFree = false
+        countDishes = order.dishes.size
         process = Thread {
             cookOrder(order)
         }
@@ -25,12 +27,12 @@ class ChefService(val kitchen: KitchenApp): ChefDao {
     }
 
     private fun cookOrder(order: OrderEntity) {
-        var allDuration = 0
-        for (dish in order.dishes) {
-            allDuration += dish.duration
-        }
+        var elem = 0
         try {
-            Thread.sleep(allDuration.toLong())
+            while (elem < countDishes) {
+                Thread.sleep(order.dishes[elem].duration.toLong())
+                ++elem
+            }
         }
         catch (e : InterruptedException) {
             isFree = true
@@ -50,4 +52,5 @@ class ChefService(val kitchen: KitchenApp): ChefDao {
 
         }
     }
+
 }

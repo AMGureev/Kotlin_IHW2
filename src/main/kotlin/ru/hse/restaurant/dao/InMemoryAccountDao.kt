@@ -39,4 +39,10 @@ class InMemoryAccountDao : AccountDao {
         val allAccounts = users + admins
         return allAccounts.find { it.login == login }
     }
+
+    override fun returnAllAccounts() : List<AccountEntity>{
+        val allAccounts = users + admins
+        return allAccounts.toList()
+    }
+
 }

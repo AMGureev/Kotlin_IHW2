@@ -16,7 +16,7 @@ class ConsoleControllerUser(private val user: AccountEntity,
     override fun launch() {
         printMainTable()
     }
-    fun printMainTable() {
+    private fun printMainTable() {
         println("Main user table")
         println("Choose one of the actions:")
         println("1. View the contents of the menu")
@@ -75,7 +75,7 @@ class ConsoleControllerUser(private val user: AccountEntity,
                 println("4. Print paid orders")
                 print("Enter your choose: ")
                 val otv = readln()
-                var coun = 0
+                var coun = 1
                 when (otv) {
                     "1" -> {
                         println("All orders:")
@@ -95,18 +95,52 @@ class ConsoleControllerUser(private val user: AccountEntity,
                                 println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
                             }
                         }
-                        if (coun == 0) {
+                        if (coun == 1) {
                             println("Orders is empty!")
                         } else {
-                            print("Input ID order if you want to cancel it: ")
-                            try {
-                                val res = readln().toInt()
-                                if (orderDao.returnOrderById(res)!!.status == "cooking" && orderDao.returnOrderById(res)!! in  orderDao.returnOrdersByUser(user as UserEntity)) {
-                                    orderDao.setStatus(orderDao.returnOrderById(res)!!, "canceled")
-                                    kitchenApp.cancelOrder(orderDao.returnOrderById(res)!!)
+                            println("1. Edit order")
+                            println("2. Cancel order")
+                            print("Your opinion: ")
+                            val ans = readln()
+                            when (ans) {
+                                "1" -> {
+                                    print("Input ID order if you want to edit it (add new dish): ")
+                                    try {
+                                        val res = readln().toInt()
+                                        if (orderDao.returnOrderById(res)!!.status == "cooking" && orderDao.returnOrderById(res)!! in  orderDao.returnOrdersByUser(user as UserEntity)) {
+                                            print("Input title dish: ")
+                                            val dish = readln()
+                                            if (dishDao.returnDishByTitle(dish) != null) {
+                                                if (dishDao.returnDishByTitle(dish)!! in menuDao.returnAllDishes()) {
+                                                    orderDao.addDishToOrder(orderDao.returnOrderById(res)!!, dishDao.returnDishByTitle(dish)!!)
+                                                    kitchenApp.addDishToOrder(orderDao.returnOrderById(res)!!)
+                                                    println("Congratulation! You add $dish")
+                                                } else {
+                                                    println("Error - this dish is not on menu!")
+                                                }
+                                            } else {
+                                                println("Error - this dish is not defined!")
+                                            }
+                                        }
+                                    } catch (ex : Exception) {
+                                        println("error convert to int...")
+                                    }
                                 }
-                            } catch (ex : Exception) {
-                                println("error convert to int...")
+                                "2" -> {
+                                    print("Input ID order if you want to cancel it: ")
+                                    try {
+                                        val res = readln().toInt()
+                                        if (orderDao.returnOrderById(res)!!.status == "cooking" && orderDao.returnOrderById(res)!! in  orderDao.returnOrdersByUser(user as UserEntity)) {
+                                            orderDao.setStatus(orderDao.returnOrderById(res)!!, "canceled")
+                                            kitchenApp.cancelOrder(orderDao.returnOrderById(res)!!)
+                                        }
+                                    } catch (ex : Exception) {
+                                        println("error convert to int...")
+                                    }
+                                }
+                                else -> {
+
+                                }
                             }
                         }
                     }
@@ -118,7 +152,7 @@ class ConsoleControllerUser(private val user: AccountEntity,
                                 println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
                             }
                         }
-                        if (coun == 0) {
+                        if (coun == 1) {
                             println("Orders is empty!")
                         } else {
                             print("Input ID order and pay for it: ")
@@ -150,7 +184,7 @@ class ConsoleControllerUser(private val user: AccountEntity,
                                 println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
                             }
                         }
-                        if (coun == 0) {
+                        if (coun == 1) {
                             println("Orders is empty!")
                         }
                     }
@@ -167,7 +201,7 @@ class ConsoleControllerUser(private val user: AccountEntity,
                         println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
                     }
                 }
-                if (coun == 0) {
+                if (coun == 1) {
                     println("You aren't having a paid order...!")
                 } else {
                     print("Input ID: ")

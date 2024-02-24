@@ -34,7 +34,7 @@ class ConsoleController() : Controller{
                 val password = readln()
                 if (authenticateUser(login, password)) {
                     if (accountDao.returnAccountByLogin(login) is AdminEntity) {
-                        val adminController = ConsoleControllerAdmin(accountDao.returnAccountByLogin(login)!!, this, dishDao, menuDao, orderDao, reviewDao, kitchenApp)
+                        val adminController = ConsoleControllerAdmin(accountDao.returnAccountByLogin(login)!!, this, dishDao, menuDao, orderDao, reviewDao, accountDao, kitchenApp)
                         adminController.launch()
                     }
                     else {

@@ -17,6 +17,7 @@ class InMemoryOrderDao : OrderDao {
         return order
     }
 
+
     override fun cancelOrder(order: OrderEntity) {
         orders.remove(order)
     }
@@ -83,4 +84,7 @@ class InMemoryOrderDao : OrderDao {
         }
     }
 
+    override fun addDishToOrder(order: OrderEntity, dish : DishEntity) {
+        order.dishes.addLast(dish)
+    }
 }

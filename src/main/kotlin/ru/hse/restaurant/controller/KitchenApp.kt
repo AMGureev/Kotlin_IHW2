@@ -32,4 +32,12 @@ class KitchenApp {
             }
         }
     }
+    fun addDishToOrder(order: OrderEntity) {
+        for (chef in chefs) {
+            if (chef.order?.id == order.id) {
+                chef.countDishes += 1
+                break
+            }
+        }
+    }
 }

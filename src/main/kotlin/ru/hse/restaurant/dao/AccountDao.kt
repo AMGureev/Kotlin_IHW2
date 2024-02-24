@@ -12,4 +12,5 @@ interface AccountDao {
     fun returnAccountByLogin(login : String) : AccountEntity?
     // savealladmins
     // saveallusers
+    fun returnAllAccounts() : List<AccountEntity>
 }
