@@ -7,10 +7,10 @@ interface DishDao {
     fun createDish(dish: DishEntity) // add new dish
     fun deleteDish(dish: DishEntity) // delete dish
     fun editDish(dish: DishEntity, newTitle: String, newPrice: Int, newDuration: Int, newWeight: Double) // edit dish
-    fun returnDishByTitle(title: String) : DishEntity? // return dish by title
+    fun returnDishByTitle(title: String): DishEntity? // return dish by title
     fun leaveReviewToDish(dish: DishEntity, review: ReviewEntity)
-    fun returnAllReviewsAboutDish(dish: DishEntity) : List<ReviewEntity>
-    fun returnAllDishes() : List<DishEntity>
+    fun returnAllReviewsAboutDish(dish: DishEntity): List<ReviewEntity>
+    fun returnAllDishes(): List<DishEntity>
     fun fillingDishesData()
     fun saveAllDishes()
 }

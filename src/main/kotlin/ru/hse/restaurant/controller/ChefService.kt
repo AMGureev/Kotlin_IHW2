@@ -1,16 +1,13 @@
 package ru.hse.restaurant.controller
 
 import ru.hse.restaurant.dao.ChefDao
-import ru.hse.restaurant.entity.ChefEntity
-import ru.hse.restaurant.entity.DishEntity
 import ru.hse.restaurant.entity.OrderEntity
-import kotlin.concurrent.thread
 
-class ChefService(val kitchen: KitchenApp): ChefDao {
+class ChefService(private val kitchen: KitchenApp) : ChefDao {
     private var isFree = true
     var countDishes = 0
-    var order : OrderEntity? = null
-    private var process : Thread? = null
+    var order: OrderEntity? = null
+    private var process: Thread? = null
     override fun cooking(order: OrderEntity): OrderEntity {
         this.order = order
         isFree = false
@@ -33,8 +30,7 @@ class ChefService(val kitchen: KitchenApp): ChefDao {
                 Thread.sleep(order.dishes[elem].duration.toLong())
                 ++elem
             }
-        }
-        catch (e : InterruptedException) {
+        } catch (e: InterruptedException) {
             isFree = true
             println("Order is cancel (print in thread)")
             return
@@ -45,11 +41,12 @@ class ChefService(val kitchen: KitchenApp): ChefDao {
         println("ORDER HAS BEEN COOOOOOOCK")
         this.kitchen.processOrders() // start process (because this chef is free)
     }
+
     fun cancelOrder() {
         try {
             process?.interrupt()
             process = null
-        } catch (_: Exception){
+        } catch (_: Exception) {
 
         }
     }

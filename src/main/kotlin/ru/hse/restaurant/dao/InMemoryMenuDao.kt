@@ -9,7 +9,7 @@ import ru.hse.restaurant.entity.MenuEntity
 import java.io.File
 import kotlin.io.path.Path
 
-class InMemoryMenuDao : MenuDao{
+class InMemoryMenuDao : MenuDao {
     private var dishes = mutableListOf<DishEntity>()
     private val directoryPath = "menu"
     private val fileName = "menu.json"
@@ -25,9 +25,10 @@ class InMemoryMenuDao : MenuDao{
         return dishes.toList()
     }
 
-    override fun returnDishesByTitle(title : String) : DishEntity? {
+    override fun returnDishesByTitle(title: String): DishEntity? {
         return dishes.find { it.title == title }
     }
+
     override fun saveAllMenu() {
         File(directoryPath).mkdirs()
         val file = Path(directoryPath, fileName).toFile()

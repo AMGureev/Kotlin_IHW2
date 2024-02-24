@@ -17,19 +17,19 @@ class InMemoryOrderDao : OrderDao {
     private val directoryPath = "orders"
     private val fileName = "orders.json"
     private var lastId = 0
-    override fun createOrder(person : UserEntity, dishes : List<DishEntity>) : OrderEntity {
+    override fun createOrder(person: UserEntity, dishes: List<DishEntity>): OrderEntity {
         val time = LocalDateTime.now()
-        val order = OrderEntity(lastId, person, "cooking", dishes, time)
+        val order = OrderEntity(lastId, person.login, "cooking", dishes, time)
         orders.add(order)
         lastId += 1
         return order
     }
 
 
-
     override fun cancelOrder(order: OrderEntity) {
         orders.remove(order)
     }
+
     /*
     fun processOrder(order: OrderEntity) {
         val threads = order.dishes.map{ dish->
@@ -67,7 +67,7 @@ class InMemoryOrderDao : OrderDao {
         return orders.find { it.id == id }
     }
 
-    override fun setStatus(order: OrderEntity, status : String) {
+    override fun setStatus(order: OrderEntity, status: String) {
         order.status = status
     }
 
@@ -87,22 +87,27 @@ class InMemoryOrderDao : OrderDao {
         return revenue
     }
 
-    override fun returnOrdersByUser(user: UserEntity): List<OrderEntity> {
+    override fun returnOrdersByUser(login: String): List<OrderEntity> {
         return orders.filter { order ->
-            order.person == user
+            order.person == login
         }
     }
 
-    override fun addDishToOrder(order: OrderEntity, dish : DishEntity) {
+    override fun addDishToOrder(order: OrderEntity, dish: DishEntity) {
         order.dishes.addLast(dish)
     }
+
     override fun saveAllOrders() {
         File(directoryPath).mkdirs()
         val file = Path(directoryPath, fileName).toFile()
         val mapper = ObjectMapper()
         mapper.registerModule(JavaTimeModule())
         mapper.registerKotlinModule()
-        mapper.writeValue(file, orders.filter { order-> order.status != "cooking"})
+        mapper.writeValue(file, orders.filter { order -> order.status != "cooking" })
+    }
+
+    override fun returnAllOrders(): List<OrderEntity> {
+        return orders.toList()
     }
 
     override fun fillingOrdersData() {

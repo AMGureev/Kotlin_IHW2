@@ -1,3 +1,3 @@
 package ru.hse.restaurant.enums
 
-enum class Type {ADMIN, USER}
+enum class Type { ADMIN, USER }

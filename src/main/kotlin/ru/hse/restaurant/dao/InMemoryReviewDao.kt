@@ -15,7 +15,7 @@ class InMemoryReviewDao : ReviewDao {
     private val directoryPath = "reviews"
     private val fileName = "reviews.json"
 
-    override fun createReview(dish : DishEntity, login: String, text: String, stars: Int) {
+    override fun createReview(dish: DishEntity, login: String, text: String, stars: Int) {
         reviews.add(ReviewEntity(dish, login, text, stars))
     }
 
@@ -28,7 +28,7 @@ class InMemoryReviewDao : ReviewDao {
         review.text = newText
     }
 
-    override fun getReviewsAboutDished(dish: DishEntity) : List<ReviewEntity> {
+    override fun getReviewsAboutDished(dish: DishEntity): List<ReviewEntity> {
         return reviews.filter { review ->
             review.dish == dish
         }
@@ -37,6 +37,7 @@ class InMemoryReviewDao : ReviewDao {
     override fun getAllReviews(): List<ReviewEntity> {
         return reviews.toList()
     }
+
     override fun saveAllReviews() {
         File(directoryPath).mkdirs()
         val file = Path(directoryPath, fileName).toFile()

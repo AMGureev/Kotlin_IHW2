@@ -1,4 +1,4 @@
-package org.example.ru.hse.restaurant
+package ru.hse.restaurant
 
 import ru.hse.restaurant.controller.ConsoleController
 

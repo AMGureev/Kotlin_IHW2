@@ -6,23 +6,27 @@ class KitchenApp {
     private var cookingOrders = mutableListOf<OrderEntity>()
     private var finishedOrders = mutableListOf<OrderEntity>()
     private var chefs = mutableListOf<ChefService>(ChefService(this))
+
     // delete
     fun processOrders() {
-        chefs.forEach { chef->
+        chefs.forEach { chef ->
             if (cookingOrders.isNotEmpty()) {
-                if (chef.isChefFree()){
+                if (chef.isChefFree()) {
                     val orderToCook = cookingOrders.removeAt(0)
                     chef.cooking(orderToCook)
                 }
             }
         }
     }
+
     fun addFinishedOrder(order: OrderEntity) {
         finishedOrders.add(order)
     }
+
     fun addCookingOrder(order: OrderEntity) {
         cookingOrders.add(order)
     }
+
     fun cancelOrder(order: OrderEntity) {
         for (chef in chefs) {
             if (chef.order?.id == order.id) {
@@ -32,6 +36,7 @@ class KitchenApp {
             }
         }
     }
+
     fun addDishToOrder(order: OrderEntity) {
         for (chef in chefs) {
             if (chef.order?.id == order.id) {

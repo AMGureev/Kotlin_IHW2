@@ -36,13 +36,14 @@ class InMemoryDishDao : DishDao {
         dish.reviews.addLast(review)
     }
 
-    override fun returnAllReviewsAboutDish(dish: DishEntity) : List<ReviewEntity> {
+    override fun returnAllReviewsAboutDish(dish: DishEntity): List<ReviewEntity> {
         return dish.reviews
     }
 
     override fun returnAllDishes(): List<DishEntity> {
         return dishes.toList()
     }
+
     override fun saveAllDishes() {
         File(directoryPath).mkdirs()
         val file = Path(directoryPath, fileName).toFile()

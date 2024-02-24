@@ -36,15 +36,16 @@ class InMemoryAccountDao : AccountDao {
         return allAccounts.any { it.login == login }
     }
 
-    override fun returnAccountByLogin(login: String) : AccountEntity? {
+    override fun returnAccountByLogin(login: String): AccountEntity? {
         val allAccounts = users + admins
         return allAccounts.find { it.login == login }
     }
 
-    override fun returnAllAccounts() : List<AccountEntity>{
+    override fun returnAllAccounts(): List<AccountEntity> {
         val allAccounts = users + admins
         return allAccounts.toList()
     }
+
     override fun saveAllAccounts() {
         File(directoryPath).mkdirs()
         var file = Path(directoryPath, fileAdminsNames).toFile()

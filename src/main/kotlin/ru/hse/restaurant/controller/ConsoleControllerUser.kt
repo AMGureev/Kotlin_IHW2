@@ -4,18 +4,20 @@ import ru.hse.restaurant.dao.*
 import ru.hse.restaurant.entity.AccountEntity
 import ru.hse.restaurant.entity.DishEntity
 import ru.hse.restaurant.entity.UserEntity
-import kotlin.system.exitProcess
 
-class ConsoleControllerUser(private val user: AccountEntity,
-                            private val console: ConsoleController,
-                            private val dishDao : InMemoryDishDao,
-                            private val menuDao : InMemoryMenuDao,
-                            private val orderDao : InMemoryOrderDao,
-                            private val reviewDao : InMemoryReviewDao,
-                            private val kitchenApp: KitchenApp) : Controller{
+class ConsoleControllerUser(
+    private val user: AccountEntity,
+    private val console: ConsoleController,
+    private val dishDao: InMemoryDishDao,
+    private val menuDao: InMemoryMenuDao,
+    private val orderDao: InMemoryOrderDao,
+    private val reviewDao: InMemoryReviewDao,
+    private val kitchenApp: KitchenApp
+) : Controller {
     override fun launch() {
         printMainTable()
     }
+
     private fun printMainTable() {
         println("Main user table")
         println("Choose one of the actions:")
@@ -28,265 +30,298 @@ class ConsoleControllerUser(private val user: AccountEntity,
         print("Enter your choose: ")
         val ans = readln()
         when (ans) {
-            "1"-> {
-                println("1. View the contents of the menu")
+            "1" -> {
+                println("View the contents of the menu")
                 printAllMenu()
             }
-            "2"-> {
-                println("2. Make an order")
-                /* формат такой:
-                если одно блюдо - то просто название блюда
-                если блюд несколько - то писать блюдо x"count"
-                закончить формировать заказ: end
-                 */
-                println("Please, input dish's title: ")
-                var ans = readln()
-                val list = mutableListOf<DishEntity>()
-                val regex = Regex("""(.+?)\s*x(\d+)""")
-                while (ans != "end") {
-                    val matchResult = regex.matchEntire(ans)
-                    if (matchResult != null) {
-                        val (dish, quantity) = matchResult.destructured
-                        if (menuDao.returnDishesByTitle(dish) == null) {
-                            println("error")
-                        } else {
-                            repeat(quantity.toInt()) {
-                                list.add(menuDao.returnDishesByTitle(dish)!!)
-                            }
-                        }
-                    }
-                    ans = readln()
-                }
-                if (list.isEmpty()) {
-                    println("Zero dishes... ERROR")
-                } else {
-                    // создается заказ
-                    println("Your order has been formed and submitted for processing!")
-                    kitchenApp.addCookingOrder(orderDao.createOrder(user as UserEntity, list.toList()))
-                    kitchenApp.processOrders()
-                }
-            }
-            "3"-> {
-                println("3. Interaction with my orders")
-                println("Choose one of the actions:")
-                println("1. Print all orders")
-                println("2. Print cooking orders")
-                println("3. Print orders awaiting payment")
-                println("4. Print paid orders")
-                print("Enter your choose: ")
-                val otv = readln()
-                var coun = 1
-                when (otv) {
-                    "1" -> {
-                        println("All orders:")
-                        if (orderDao.returnOrdersByUser(user as UserEntity).isEmpty()) {
-                            println("Orders is empty!")
-                        } else {
-                            for (order in orderDao.returnOrdersByUser(user)) {
-                                println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}.")
-                            }
-                        }
-                    }
-                    "2" -> {
-                        val status = "cooking"
-                        println("All cooking orders:")
-                        for (order in orderDao.returnOrdersByStatus(status)) {
-                            if (order in orderDao.returnOrdersByUser(user as UserEntity)) {
-                                println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
-                            }
-                        }
-                        if (coun == 1) {
-                            println("Orders is empty!")
-                        } else {
-                            println("1. Edit order")
-                            println("2. Cancel order")
-                            print("Your opinion: ")
-                            val ans = readln()
-                            when (ans) {
-                                "1" -> {
-                                    print("Input ID order if you want to edit it (add new dish): ")
-                                    try {
-                                        val res = readln().toInt()
-                                        if (orderDao.returnOrderById(res)!!.status == "cooking" && orderDao.returnOrderById(res)!! in  orderDao.returnOrdersByUser(user as UserEntity)) {
-                                            print("Input title dish: ")
-                                            val dish = readln()
-                                            if (dishDao.returnDishByTitle(dish) != null) {
-                                                if (dishDao.returnDishByTitle(dish)!! in menuDao.returnAllDishes()) {
-                                                    orderDao.addDishToOrder(orderDao.returnOrderById(res)!!, dishDao.returnDishByTitle(dish)!!)
-                                                    kitchenApp.addDishToOrder(orderDao.returnOrderById(res)!!)
-                                                    println("Congratulation! You add $dish")
-                                                } else {
-                                                    println("Error - this dish is not on menu!")
-                                                }
-                                            } else {
-                                                println("Error - this dish is not defined!")
-                                            }
-                                        }
-                                    } catch (ex : Exception) {
-                                        println("error convert to int...")
-                                    }
-                                }
-                                "2" -> {
-                                    print("Input ID order if you want to cancel it: ")
-                                    try {
-                                        val res = readln().toInt()
-                                        if (orderDao.returnOrderById(res)!!.status == "cooking" && orderDao.returnOrderById(res)!! in  orderDao.returnOrdersByUser(user as UserEntity)) {
-                                            orderDao.setStatus(orderDao.returnOrderById(res)!!, "canceled")
-                                            kitchenApp.cancelOrder(orderDao.returnOrderById(res)!!)
-                                        }
-                                    } catch (ex : Exception) {
-                                        println("error convert to int...")
-                                    }
-                                }
-                                else -> {
 
-                                }
-                            }
-                        }
-                    }
-                    "3" -> {
-                        val status = "ready"
-                        println("Orders awaiting payment:")
-                        for (order in orderDao.returnOrdersByStatus(status)) {
-                            if (order in orderDao.returnOrdersByUser(user as UserEntity)) {
-                                println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
-                            }
-                        }
-                        if (coun == 1) {
-                            println("Orders is empty!")
-                        } else {
-                            print("Input ID order and pay for it: ")
-                            try {
-                                val payId = readln().toInt()
-                                if (orderDao.returnOrderById(payId)!!.status == "ready" && orderDao.returnOrderById(payId)!! in  orderDao.returnOrdersByUser(user as UserEntity)) {
-                                    print("Are you sure?(y/other): ")
-                                    val res = readln()
-                                    when (res) {
-                                        "y"-> {
-                                            orderDao.setStatus(orderDao.returnOrderById(payId)!!, "paid")
-                                            println("Congratulation!")
-                                        }
-                                        else->{
-                                            println("Cancel!")
-                                        }
-                                    }
-                                }
-                            } catch (ex: Exception) {
-                                println("error convert to int...")
-                            }
-                        }
-                    }
-                    "4" -> {
-                        val status = "paid"
-                        println("Orders awaiting payment:")
-                        for (order in orderDao.returnOrdersByStatus(status)) {
-                            if (order in orderDao.returnOrdersByUser(user as UserEntity)) {
-                                println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
-                            }
-                        }
-                        if (coun == 1) {
-                            println("Orders is empty!")
-                        }
-                    }
-                    else -> {
-                        println("Go to main table...")
-                    }
-                }
+            "2" -> {
+                makeAnOrder()
             }
+
+            "3" -> {
+                interactionWithOrders()
+            }
+
             "4" -> {
-                println("Make a review!")
-                var coun = 1
-                for (order in orderDao.returnOrdersByStatus("paid")) {
-                    if (order in orderDao.returnOrdersByUser(user as UserEntity)) {
-                        println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
-                    }
-                }
-                if (coun == 1) {
-                    println("You aren't having a paid order...!")
-                } else {
-                    print("Input ID: ")
-                    try {
-                        val otv = readln().toInt()
-                        coun = 1
-                        if (orderDao.returnOrderById(otv)!! in orderDao.returnOrdersByUser(user as UserEntity)) {
-                            if (orderDao.returnOrderById(otv) != null && orderDao.returnOrderById(otv)!!.status == "paid") {
-                                for (dish in orderDao.returnOrderById(otv)!!.dishes) {
-                                    println("${coun++}. Dish: ${dish.title}, price: ${dish.price}.")
-                                }
-                                print("Input title dish: ")
-                                val dish = readln()
-                                if (dishDao.returnDishByTitle(dish) in menuDao.returnAllDishes() && dishDao.returnDishByTitle(
-                                        dish
-                                    ) in orderDao.returnOrderById(otv)!!.dishes
-                                ) {
-                                    print("Input stars (0-5): ")
-                                    try {
-                                        val stars = readln().toInt()
-                                        print("Input text: ")
-                                        val text = readln()
-                                        if (stars in 0..5) {
-                                            if (text.length >= 20) {
-                                                reviewDao.createReview(
-                                                    dishDao.returnDishByTitle(dish)!!,
-                                                    user.login,
-                                                    text,
-                                                    stars
-                                                )
-                                                println("congratulation!")
-                                            } else {
-                                                println("error")
-                                            }
-                                        } else {
-                                            println("error")
-                                        }
-                                    } catch (ex: Exception) {
-                                        println("Error!")
-                                    }
-                                }
-                            }
-                        }
-                    } catch (ex: Exception) {
-                        println("Error!")
-                    }
-                }
+                makeReview()
             }
+
             "5" -> {
                 println("Sign out")
                 console.launch()
             }
+
             "6" -> {
-                if (orderDao.returnOrdersByStatus("cooking").isNotEmpty()) {
-                    println("Attention! ${orderDao.returnOrdersByStatus("cooking").size} orders are cooking! If you exit, these orders aren't saving!")
-                    print("Exit or not?(EXIT/other): ")
-                    val otv = readln()
-                    when (otv) {
-                        "EXIT" -> {
-                            this.console.saveAllInformationToJson()
-                            println("Exit program! Goodbye!")
-                            exitProcess(0)
-                        }
-                        else -> {
-                            println("THX YOU")
-                        }
-                    }
-                } else {
-                    this.console.saveAllInformationToJson()
-                    println("Exit program! Goodbye!")
-                    exitProcess(0)
-                }
+                this.console.exitProgram()
             }
         }
         printMainTable()
     }
+
     private fun printAllMenu() {
         var cou = 1
         if (menuDao.returnAllDishes().isEmpty()) {
-            println("menu is empty!")
+            println("The menu is empty!")
             return
         }
-        println("Menu's dishes:")
-        for (dish in menuDao.returnAllDishes()){
+        println("The menu's dishes:")
+        for (dish in menuDao.returnAllDishes()) {
             println("${cou++}. Title: ${dish.title}, price: ${dish.price}\$, weight: ${dish.weight}.")
+        }
+    }
+
+    private fun makeAnOrder() {
+        println("Make an order")
+        /* формат такой:
+        блюд несколько - то писать блюдо x"count", где count - кол-во блюд
+        закончить формировать заказ: end
+        */
+        println("Please, input dish's title: ")
+        print(">>")
+        var ans = readln()
+        val list = mutableListOf<DishEntity>()
+        val regex = Regex("""(.+?)\s*x(\d+)""")
+        while (ans != "end") {
+            val matchResult = regex.matchEntire(ans)
+            if (matchResult != null) {
+                val (dish, quantity) = matchResult.destructured
+                if (menuDao.returnDishesByTitle(dish) == null) {
+                    println("ERROR [This dish is not on the menu]")
+                } else {
+                    repeat(quantity.toInt()) {
+                        list.add(menuDao.returnDishesByTitle(dish)!!)
+                    }
+                }
+            }
+            print(">>")
+            ans = readln()
+        }
+        if (list.isEmpty()) {
+            println("The order was not formed because you did not order anything!")
+        } else {
+            // создается заказ
+            println("Your order has been formed and submitted for processing! Wait!")
+            kitchenApp.addCookingOrder(orderDao.createOrder(user as UserEntity, list.toList()))
+            kitchenApp.processOrders()
+        }
+    }
+
+    private fun interactionWithOrders() {
+        println("Interaction with my orders (and edit order)")
+        println("Choose one of the actions:")
+        println("1. Print all orders")
+        println("2. Print cooking orders")
+        println("3. Print orders awaiting payment(paid orders)")
+        println("4. Print paid orders")
+        print("Enter your choose: ")
+        val otv = readln()
+        var coun = 1
+        when (otv) {
+            "1" -> {
+                println("All orders:")
+                if (orderDao.returnOrdersByUser(user.login).isEmpty()) {
+                    println("Orders is empty!")
+                } else {
+                    for (order in orderDao.returnOrdersByUser(user.login)) {
+                        println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}.")
+                    }
+                }
+            }
+
+            "2" -> {
+                println("All cooking orders:")
+                printOrders("cooking")
+                if (orderDao.returnOrdersByUser(user.login).filter { order -> order.status == "cooking" }
+                        .isEmpty()) {
+
+                } else {
+                    println("1. Edit order")
+                    println("2. Cancel order")
+                    println("3. Go to main table")
+                    print("Your opinion: ")
+                    val ans = readln()
+                    when (ans) {
+                        "1" -> {
+                            editOrder()
+                        }
+
+                        "2" -> {
+                            cancelOrder()
+                        }
+
+                        "3" -> {
+
+                        }
+                    }
+                }
+            }
+
+            "3" -> {
+                println("Orders awaiting payment:")
+                printOrders("ready")
+                if (orderDao.returnOrdersByUser(user.login).filter { order -> order.status == "ready" }
+                        .isEmpty()) {
+
+                } else {
+                    println("1. Pay for the order")
+                    println("2. Go back to the user table")
+                    print("Your opinion: ")
+                    val opinion = readln()
+                    when (opinion) {
+                        "1" -> {
+                            print("Input ID order and pay for it: ")
+                            try {
+                                val payId = readln().toInt()
+                                if (orderDao.returnOrderById(payId)!!.status == "ready" && orderDao.returnOrderById(
+                                        payId
+                                    )!! in orderDao.returnOrdersByUser(
+                                        user.login
+                                    )
+                                ) {
+                                    print("Are you sure?(y/other): ")
+                                    val res = readln()
+                                    when (res) {
+                                        "y" -> {
+                                            orderDao.setStatus(orderDao.returnOrderById(payId)!!, "paid")
+                                            println("Congratulation!")
+                                        }
+
+                                        else -> {
+                                            println("Cancel!")
+                                        }
+                                    }
+                                } else {
+                                    println("ERROR [Invalid value ID]")
+                                }
+                            } catch (ex: Exception) {
+                                println("ERROR [It was required to enter a number]")
+                            }
+                        }
+
+                        "2" -> {
+
+                        }
+                    }
+                }
+            }
+
+            "4" -> {
+                println("All paid orders: ")
+                printOrders("paid")
+            }
+
+            else -> {
+                println("Go to main table...")
+            }
+        }
+    }
+
+    private fun editOrder() {
+        print("Input ID order if you want to edit it (add new dish): ")
+        try {
+            val res = readln().toInt()
+            if (orderDao.returnOrderById(res)!!.status == "cooking" && orderDao.returnOrderById(res)!! in orderDao.returnOrdersByUser(
+                    user.login
+                )
+            ) {
+                print("Input title dish: ")
+                val dish = readln()
+                if (dishDao.returnDishByTitle(dish) != null) {
+                    if (dishDao.returnDishByTitle(dish)!! in menuDao.returnAllDishes()) {
+                        orderDao.addDishToOrder(orderDao.returnOrderById(res)!!, dishDao.returnDishByTitle(dish)!!)
+                        kitchenApp.addDishToOrder(orderDao.returnOrderById(res)!!)
+                        println("Congratulation! You add $dish")
+                    } else {
+                        println("ERROR [This dish is not on menu]")
+                    }
+                } else {
+                    println("ERROR [This dish is not defined]")
+                }
+            }
+        } catch (ex: Exception) {
+            println("ERROR [It was required to enter a number]")
+        }
+    }
+
+    private fun cancelOrder() {
+        print("Input ID order if you want to cancel it: ")
+        try {
+            val res = readln().toInt()
+            if (orderDao.returnOrderById(res)!!.status == "cooking" && orderDao.returnOrderById(res)!! in orderDao.returnOrdersByUser(
+                    user.login
+                )
+            ) {
+                orderDao.setStatus(orderDao.returnOrderById(res)!!, "canceled")
+                kitchenApp.cancelOrder(orderDao.returnOrderById(res)!!)
+            }
+        } catch (ex: Exception) {
+            println("ERROR [It was required to enter a number]")
+        }
+    }
+
+    private fun makeReview() {
+        println("Make a review")
+        printOrders("paid")
+        if (orderDao.returnOrdersByUser(user.login).none { order -> order.status == "paid" }) {
+            println("Place an order and pay for it to leave an order!")
+        } else {
+            print("Input ID: ")
+            try {
+                val otv = readln().toInt()
+                var coun = 1
+                if (orderDao.returnOrderById(otv)!! in orderDao.returnOrdersByUser(user.login)) {
+                    if (orderDao.returnOrderById(otv) != null && orderDao.returnOrderById(otv)!!.status == "paid") {
+                        for (dish in orderDao.returnOrderById(otv)!!.dishes) {
+                            println("${coun++}. Dish: ${dish.title}, price: ${dish.price}.")
+                        }
+                        print("Input title dish: ")
+                        val dish = readln()
+                        if (dishDao.returnDishByTitle(dish) in menuDao.returnAllDishes() && dishDao.returnDishByTitle(
+                                dish
+                            ) in orderDao.returnOrderById(otv)!!.dishes
+                        ) {
+                            print("Input stars (0-5): ")
+                            try {
+                                val stars = readln().toInt()
+                                print("Input text: ")
+                                val text = readln()
+                                if (stars in 0..5) {
+                                    if (text.length >= 20) {
+                                        reviewDao.createReview(
+                                            dishDao.returnDishByTitle(dish)!!,
+                                            user.login,
+                                            text,
+                                            stars
+                                        )
+                                        println("congratulation!")
+                                    } else {
+                                        println("ERROR [The text must contain at least 20 characters]")
+                                    }
+                                } else {
+                                    println("ERROR [The number of stars should be from 0 to 5]")
+                                }
+                            } catch (ex: Exception) {
+                                println("ERROR [It was required to enter a number]")
+                            }
+                        }
+                    }
+                }
+            } catch (ex: Exception) {
+                println("ERROR [It was required to enter a number]")
+            }
+        }
+    }
+
+    private fun printOrders(status: String) {
+        var coun = 1
+        for (order in orderDao.returnOrdersByStatus(status)) {
+            if (order in orderDao.returnOrdersByUser(user.login)) {
+                println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
+            }
+        }
+        if (coun == 1) {
+            println("Orders is empty!")
         }
     }
 }
