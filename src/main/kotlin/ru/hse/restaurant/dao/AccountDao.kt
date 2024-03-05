@@ -8,7 +8,7 @@ interface AccountDao {
     fun authenticateAccount(inputPassword: String, account: AccountEntity): Boolean // authenticate user
     fun findAccountByLogin(login: String): Boolean // search for account by login
     fun saveAllAccounts() // save all accounts in json file
-    fun fillingAccountsData() // data recovery from file
-    fun returnAccountByLogin(login: String): AccountEntity?
-    fun returnAllAccounts(): List<AccountEntity>
+    fun fillingAccountsData() // data recovery from json file
+    fun returnAccountByLogin(login: String): AccountEntity? // finds the admin or user and returns it
+    fun returnAllAccounts(): List<AccountEntity> // returns list of accounts
 }

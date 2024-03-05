@@ -18,7 +18,7 @@ class ConsoleControllerUser(
         printMainTable()
     }
 
-    private fun printMainTable() {
+    private fun printMainTable() { // a dialog table with the user-client
         println("Main user table")
         println("Choose one of the actions:")
         println("1. View the contents of the menu")
@@ -59,7 +59,7 @@ class ConsoleControllerUser(
         printMainTable()
     }
 
-    private fun printAllMenu() {
+    private fun printAllMenu() { // print all dishes from the menu
         var cou = 1
         if (menuDao.returnAllDishes().isEmpty()) {
             println("The menu is empty!")
@@ -71,7 +71,7 @@ class ConsoleControllerUser(
         }
     }
 
-    private fun makeAnOrder() {
+    private fun makeAnOrder() { // create a new order
         println("Make an order")
         /* формат такой:
         блюд несколько - то писать блюдо x"count", где count - кол-во блюд
@@ -90,12 +90,12 @@ class ConsoleControllerUser(
                 if (quantity.isEmpty()) {
                     println("ERROR [Incorrect format]")
                 }
-                if (menuDao.returnDishesByTitle(dish) == null) {
+                if (menuDao.returnDishByTitle(dish) == null) {
                     println("ERROR [This dish is not on the menu]")
                 } else {
-                    if (quantity.toInt() <= menuDao.returnDishesByTitle(dish)!!.count && quantity.toInt() > 0) {
+                    if (quantity.toInt() <= menuDao.returnDishByTitle(dish)!!.count && quantity.toInt() > 0) {
                         repeat(quantity.toInt()) {
-                            list.add(menuDao.returnDishesByTitle(dish)!!)
+                            list.add(menuDao.returnDishByTitle(dish)!!)
                         }
                         removeCountDishes(dish, quantity.toInt())
                     } else {
@@ -116,7 +116,7 @@ class ConsoleControllerUser(
         }
     }
 
-    private fun interactionWithOrders() {
+    private fun interactionWithOrders() { // user interaction with orders
         println("Interaction with my orders (and edit order)")
         println("Choose one of the actions:")
         println("1. Print all orders")
@@ -236,7 +236,7 @@ class ConsoleControllerUser(
         }
     }
 
-    private fun editOrder() {
+    private fun editOrder() { // edit order
         print("Input ID order if you want to edit it (add new dish): ")
         try {
             val res = readln().toInt()
@@ -264,7 +264,7 @@ class ConsoleControllerUser(
         }
     }
 
-    private fun cancelOrder() {
+    private fun cancelOrder() { // cancel cooking order
         print("Input ID order if you want to cancel it: ")
         try {
             val res = readln().toInt()
@@ -280,7 +280,7 @@ class ConsoleControllerUser(
         }
     }
 
-    private fun makeReview() {
+    private fun makeReview() { // create new review
         println("Make a review")
         printOrders("paid")
         if (orderDao.returnOrdersByUser(user.login).none { order -> order.status == "paid" }) {
@@ -292,7 +292,7 @@ class ConsoleControllerUser(
                 var coun = 1
                 if (orderDao.returnOrderById(otv)!! in orderDao.returnOrdersByUser(user.login)) {
                     if (orderDao.returnOrderById(otv) != null && orderDao.returnOrderById(otv)!!.status == "paid") {
-                        for (dish in orderDao.returnOrderById(otv)!!.dishes) {
+                        for (dish in orderDao.returnOrderById(otv)!!.dishes.toList()) {
                             println("${coun++}. Dish: ${dish.title}, price: ${dish.price}.")
                         }
                         print("Input title dish: ")
@@ -333,7 +333,7 @@ class ConsoleControllerUser(
         }
     }
 
-    private fun printOrders(status: String) {
+    private fun printOrders(status: String) { // print information about orders by status
         var coun = 1
         for (order in orderDao.returnOrdersByStatus(status)) {
             val dishCountMap = mutableMapOf<String, Int>()
@@ -354,10 +354,10 @@ class ConsoleControllerUser(
         }
     }
 
-    private fun removeCountDishes(title : String, count : Int) { // удаляем блюда из меню, если их не осталось
-        menuDao.returnDishesByTitle(title)!!.count -= count
-        if (menuDao.returnDishesByTitle(title)!!.count <= 0) {
-            menuDao.deleteDishWithMenu(menuDao.returnDishesByTitle(title)!!)
+    private fun removeCountDishes(title : String, count : Int) { // change the value of the number of dishes
+        menuDao.returnDishByTitle(title)!!.count -= count
+        if (menuDao.returnDishByTitle(title)!!.count <= 0) {
+            menuDao.deleteDishWithMenu(menuDao.returnDishByTitle(title)!!)
         }
     }
 }

@@ -17,7 +17,7 @@ class ConsoleControllerAdmin(
         printMainTable()
     }
 
-    private fun printMainTable() {
+    private fun printMainTable() { // a dialog table with the admin
         println("Main admin table")
         println("Choose one of the actions:")
         println("1. Interaction with dishes")
@@ -45,9 +45,11 @@ class ConsoleControllerAdmin(
             "4" -> {
                 infoAboutAccounts()
             }
+
             "5" -> {
                 returnRevenue()
             }
+
             "6" -> {
                 println("Sign out!")
                 console.launch()
@@ -60,7 +62,7 @@ class ConsoleControllerAdmin(
         printMainTable()
     }
 
-    private fun createNewDish(
+    private fun createNewDish( // the process of creating a new dish
         title: String,
         price: Double,
         duration: Int,
@@ -70,7 +72,7 @@ class ConsoleControllerAdmin(
             return
         }
         if (dishDao.returnDishByTitle(title) == null) {
-            dishDao.createDish(DishEntity(title, price, duration, weight, 0,mutableListOf<ReviewEntity>()))
+            dishDao.createDish(DishEntity(title, price, duration, weight, 0, mutableListOf<ReviewEntity>()))
             println("Congratulation! Create new dish!")
             print("Add this dish to menu?(y/other): ")
             val res = readln()
@@ -79,7 +81,7 @@ class ConsoleControllerAdmin(
                     print("Enter the number of available dishes: ")
                     try {
                         val cou = readln().toInt()
-                        if (0 < cou ){
+                        if (0 < cou) {
                             dishDao.returnDishByTitle(title)!!.count += cou
                             menuDao.addDishToMenu(dishDao.returnDishByTitle(title)!!)
                             println("Congratulation! This dish on menu!")
@@ -100,7 +102,7 @@ class ConsoleControllerAdmin(
         }
     }
 
-    private fun deleteDishOnMenu(title: String) {
+    private fun deleteDishOnMenu(title: String) { // delete dish on menu
         if (dishDao.returnDishByTitle(title) == null) {
             println("ERROR [A dish with that name not exists]")
             return
@@ -126,7 +128,7 @@ class ConsoleControllerAdmin(
         }
     }
 
-    private fun addDishToMenu(titleDish: String) {
+    private fun addDishToMenu(titleDish: String) { // add dish to menu
         if (dishDao.returnDishByTitle(titleDish) == null) {
             println("ERROR [This dish is not defined]")
             return
@@ -143,7 +145,7 @@ class ConsoleControllerAdmin(
         print("Enter the number of available dishes: ")
         try {
             val cou = readln().toInt()
-            if (0 < cou ){
+            if (0 < cou) {
                 dishDao.returnDishByTitle(titleDish)!!.count += cou
                 menuDao.addDishToMenu(dishDao.returnDishByTitle(titleDish)!!)
                 println("Congratulation! This dish on menu!")
@@ -155,7 +157,7 @@ class ConsoleControllerAdmin(
         }
     }
 
-    private fun editInfoAboutDish(
+    private fun editInfoAboutDish( // process of edit info about the dish
         oldTitle: String,
         newTitle: String,
         newPrice: Double,
@@ -191,7 +193,7 @@ class ConsoleControllerAdmin(
         println("Congratulation!")
     }
 
-    private fun getAverageStars(dish: DishEntity) {
+    private fun getAverageStars(dish: DishEntity) { // get average dish stars
         if (reviewDao.getReviewsAboutDished(dish).isEmpty()) {
             println("Dishes are not appreciated!")
             return
@@ -203,7 +205,7 @@ class ConsoleControllerAdmin(
         println("Average stars : ${cou / reviewDao.getReviewsAboutDished(dish).size}.")
     }
 
-    private fun getAllReview(dish: DishEntity) {
+    private fun getAllReview(dish: DishEntity) { // get all dish review
         if (reviewDao.getReviewsAboutDished(dish).isEmpty()) {
             println("Dishes are not appreciated!")
             return
@@ -214,7 +216,7 @@ class ConsoleControllerAdmin(
         }
     }
 
-    private fun getAverageStarsAllDishes() {
+    private fun getAverageStarsAllDishes() { // get average stars all dishes
         if (reviewDao.getAllReviews().isEmpty()) {
             println("It is impossible to calculate the average score!")
             return
@@ -226,11 +228,11 @@ class ConsoleControllerAdmin(
         println("Average stars all dishes : ${averageStars / reviewDao.getAllReviews().size}.")
     }
 
-    private fun returnRevenue() {
+    private fun returnRevenue() { // return total revenue
         println("Total revenue : ${orderDao.returnRevenue()}$.")
     }
 
-    private fun checkCorrectInput(title: String, price: Double, duration: Int, weight: Double): Boolean {
+    private fun checkCorrectInput(title: String, price: Double, duration: Int, weight: Double): Boolean { // check the correctness of the entered values for the dish
         var count = 0
         if (title.length < 5) {
             println("ERROR [The length must be at least 5]")
@@ -254,7 +256,7 @@ class ConsoleControllerAdmin(
         return true
     }
 
-    private fun interactionWithDishes() {
+    private fun interactionWithDishes() { // the process of interacting with dishes
         println("Interaction with dishes!")
         println("1. Create new dish")
         println("2. Delete dish")
@@ -399,12 +401,19 @@ class ConsoleControllerAdmin(
                     println("ERROR [No number entered]")
                     return
                 }
-                editInfoAboutDish(title, newTitle, newPrice.toDouble(), newCount.toInt(), newWeight.toDouble(), newDuration.toInt() * 1000)
+                editInfoAboutDish(
+                    title,
+                    newTitle,
+                    newPrice.toDouble(),
+                    newCount.toInt(),
+                    newWeight.toDouble(),
+                    newDuration.toInt() * 1000
+                )
             }
         }
     }
 
-    private fun getStats() {
+    private fun getStats() { // find out the statistics of dishes
         println("Get stats!")
         println("1. Stats about dish")
         println("2. Average dishes rating")
@@ -447,7 +456,7 @@ class ConsoleControllerAdmin(
         }
     }
 
-    private fun infoAboutOrders() {
+    private fun infoAboutOrders() { // information about orders
         println("1. In process - 'cooking'")
         println("2. Wait to pay - 'ready'")
         println("3. Cancelled by the user - 'canceled'")
@@ -485,7 +494,7 @@ class ConsoleControllerAdmin(
         }
     }
 
-    private fun infoAboutAccounts() {
+    private fun infoAboutAccounts() { // all information about accounts
         println("Info about accounts")
         var coun = 1
         for (acc in accountDao.returnAllAccounts()) {
@@ -508,7 +517,7 @@ class ConsoleControllerAdmin(
         }
     }
 
-    private fun printOrders(status: String) {
+    private fun printOrders(status: String) { // information about all orders
         var coun = 1
         for (order in orderDao.returnOrdersByStatus(status)) {
             val dishCountMap = mutableMapOf<String, Int>()

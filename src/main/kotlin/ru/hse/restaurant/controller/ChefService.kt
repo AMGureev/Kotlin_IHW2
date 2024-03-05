@@ -23,7 +23,7 @@ class ChefService(private val kitchen: KitchenApp) : ChefDao {
         return isFree
     }
 
-    private fun cookOrder(order: OrderEntity) {
+    override fun cookOrder(order: OrderEntity) {
         var elem = 0
         try {
             while (elem < countDishes) {
@@ -39,10 +39,10 @@ class ChefService(private val kitchen: KitchenApp) : ChefDao {
         kitchen.addFinishedOrder(order)
         isFree = true
         println("ORDER HAS BEEN COOOOOOOCK")
-        this.kitchen.processOrders() // start process (because this chef is free)
+        this.kitchen.processOrders()
     }
 
-    fun cancelOrder() {
+    override fun cancelOrder() {
         try {
             process?.interrupt()
             process = null

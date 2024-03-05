@@ -8,7 +8,7 @@ class KitchenApp {
     private var chefs = mutableListOf<ChefService>(ChefService(this))
 
     // delete
-    fun processOrders() {
+    fun processOrders() { // process orders
         chefs.forEach { chef ->
             if (cookingOrders.isNotEmpty()) {
                 if (chef.isChefFree()) {
@@ -19,15 +19,15 @@ class KitchenApp {
         }
     }
 
-    fun addFinishedOrder(order: OrderEntity) {
+    fun addFinishedOrder(order: OrderEntity) { // add new finished order to list
         finishedOrders.add(order)
     }
 
-    fun addCookingOrder(order: OrderEntity) {
+    fun addCookingOrder(order: OrderEntity) { // add new cooking order to list
         cookingOrders.add(order)
     }
 
-    fun cancelOrder(order: OrderEntity) {
+    fun cancelOrder(order: OrderEntity) { // cancel cooking process
         for (chef in chefs) {
             if (chef.order?.id == order.id) {
                 chef.cancelOrder()
@@ -37,7 +37,7 @@ class KitchenApp {
         }
     }
 
-    fun addDishToOrder(order: OrderEntity) {
+    fun addDishToOrder(order: OrderEntity) { // add one dish to order
         for (chef in chefs) {
             if (chef.order?.id == order.id) {
                 chef.countDishes += 1

@@ -25,7 +25,7 @@ class InMemoryMenuDao : MenuDao {
         return dishes.toList()
     }
 
-    override fun returnDishesByTitle(title: String): DishEntity? {
+    override fun returnDishByTitle(title: String): DishEntity? {
         return dishes.find { it.title == title }
     }
 

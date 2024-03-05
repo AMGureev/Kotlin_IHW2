@@ -15,7 +15,7 @@ class ConsoleController() : Controller {
         printHelloTable()
     }
 
-    private fun printHelloTable() {
+    private fun printHelloTable() { // a dialog table with the user
         print("Choose one of the three actions:\n1. Sign in\n2. Sign up\n3. Exit program\nYour choose: ")
         var ans: Int = 0
         try {
@@ -140,7 +140,7 @@ class ConsoleController() : Controller {
         orderDao.fillingOrdersData()
     }
 
-    fun exitProgram() {
+    fun exitProgram() { // shut down the program
         if (orderDao.returnOrdersByStatus("cooking").isNotEmpty()) {
             println("Attention! ${orderDao.returnOrdersByStatus("cooking").size} orders are cooking! If you exit, these orders aren't saving!")
             print("Exit or not?(EXIT/other): ")
