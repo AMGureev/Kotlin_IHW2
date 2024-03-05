@@ -115,4 +115,9 @@ class InMemoryOrderDao : OrderDao {
         orders = mapper.readValue<MutableList<OrderEntity>>(file.readText())
         lastId = orders.size
     }
+    override fun filterOrdersByTime(orders: List<OrderEntity>, startTime: LocalDateTime, endTime: LocalDateTime): List<OrderEntity> {
+        return orders.filter { order ->
+            order.timeStart in startTime..endTime
+        }
+    }
 }

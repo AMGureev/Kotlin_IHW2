@@ -2,6 +2,8 @@ package ru.hse.restaurant.controller
 
 import ru.hse.restaurant.dao.*
 import ru.hse.restaurant.entity.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class ConsoleControllerAdmin(
     admin: AccountEntity,
@@ -461,6 +463,7 @@ class ConsoleControllerAdmin(
         println("2. Wait to pay - 'ready'")
         println("3. Cancelled by the user - 'canceled'")
         println("4. Paid for by the user - 'paid'")
+        println("5. Filter orders by cooking start time")
         print("Select one of the order's status: ")
         val res = readln()
         when (res) {
@@ -487,7 +490,33 @@ class ConsoleControllerAdmin(
                 println("All paid orders:")
                 printOrders(status)
             }
-
+            "5" -> {
+                print("Enter the start filter time (in the format yyyy-MM-dd HH:mm): ")
+                val startInput = readLine()
+                print("Enter the end filter time (in the format yyyy-MM-dd HH:mm): ")
+                val endInput = readLine()
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+                try {
+                    val startTime = LocalDateTime.parse(startInput, formatter)
+                    val endTime = LocalDateTime.parse(endInput, formatter)
+                    if (endTime < startTime) {
+                        println("ERROR [The left boundary of time cannot be greater than the right boundary]")
+                        return
+                    }
+                    val filteredOrders = orderDao.filterOrdersByTime(orderDao.returnAllOrders(), startTime, endTime)
+                    if (filteredOrders.isEmpty()) {
+                        println("There were no orders in this time period!")
+                        return
+                    }
+                    // Вывод результатов
+                    println("Orders in a given time range: ")
+                    for (order in filteredOrders) {
+                        println("Order ID: ${order.id}, user: ${order.person}, time: ${order.timeStart}")
+                    }
+                } catch (ex : Exception) {
+                    println("ERROR [Incorrect time format]")
+                }
+            }
             else -> {
                 println("Go to main table...")
             }
@@ -516,7 +545,6 @@ class ConsoleControllerAdmin(
             )
         }
     }
-
     private fun printOrders(status: String) { // information about all orders
         var coun = 1
         for (order in orderDao.returnOrdersByStatus(status)) {

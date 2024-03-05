@@ -3,6 +3,7 @@ package ru.hse.restaurant.dao
 import ru.hse.restaurant.entity.DishEntity
 import ru.hse.restaurant.entity.OrderEntity
 import ru.hse.restaurant.entity.UserEntity
+import java.time.LocalDateTime
 
 interface OrderDao {
     fun createOrder(person: UserEntity, dishes: List<DishEntity>): OrderEntity// create new order
@@ -18,4 +19,5 @@ interface OrderDao {
     fun fillingOrdersData() // download orders data json
     fun saveAllOrders() // save data to json
     fun returnAllOrders(): List<OrderEntity> // return all orders
+    fun filterOrdersByTime(orders: List<OrderEntity>, startTime: LocalDateTime, endTime: LocalDateTime): List<OrderEntity> // return order list what filter by time
 }
