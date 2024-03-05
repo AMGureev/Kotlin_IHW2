@@ -92,7 +92,7 @@ class ConsoleController() : Controller {
         }
     }
 
-    private fun registerAccount(name: String, password: String, isAdmin: Boolean) { // process register user
+    private fun registerAccount(name: String, password: String, isAdmin: Boolean) { // process registration user
         if (accountDao.findAccountByLogin(name)) {
             println("ERROR [An account with this username already exists]")
         } else {
