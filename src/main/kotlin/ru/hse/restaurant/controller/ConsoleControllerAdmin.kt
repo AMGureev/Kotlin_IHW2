@@ -175,6 +175,9 @@ class ConsoleControllerAdmin(
         if (newTitle.isEmpty()) {
             newTitle = oldTitle
         }
+        if (newCount == 0) {
+            newCount = dishDao.returnDishByTitle(oldTitle)!!.count
+        }
         if (newWeight == 0.0) {
             newWeight = dishDao.returnDishByTitle(oldTitle)!!.weight
         }
@@ -298,7 +301,7 @@ class ConsoleControllerAdmin(
                         }
                         println("All dishes:")
                         for (dish in dishDao.returnAllDishes()) {
-                            println("${cou++}. Title: ${dish.title}, price: ${dish.price}$, count: ${dish.count}, weight: ${dish.weight}, duration: ${dish.duration}")
+                            println("${cou++}. Title: ${dish.title}, price: ${dish.price}$, count: ${dish.count}, weight: ${dish.weight} gram, duration: ${dish.duration} sec")
                         }
                     }
 
@@ -309,7 +312,7 @@ class ConsoleControllerAdmin(
                         }
                         println("The menu's dishes:")
                         for (dish in menuDao.returnAllDishes()) {
-                            println("${cou++}. Title: ${dish.title}, price: ${dish.price}\$, count: ${dish.count}, weight: ${dish.weight} gram, duration: ${dish.duration} sec")
+                            println("${cou++}. Title: ${dish.title}, price: ${dish.price}$, count: ${dish.count}, weight: ${dish.weight} gram, duration: ${dish.duration} sec")
                         }
                     }
 
