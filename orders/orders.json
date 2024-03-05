@@ -1,1 +1,1 @@
-[]
+[{"id":0,"person":"user","status":"paid","dishes":[{"title":"apple","price":10.2,"duration":5000,"weight":200.0,"count":0},{"title":"apple","price":10.2,"duration":5000,"weight":200.0,"count":0},{"title":"apple","price":10.2,"duration":5000,"weight":200.0,"count":0}],"timeStart":[2024,3,5,22,28,49,779834200]},{"id":1,"person":"user","status":"paid","dishes":[{"title":"apple","price":10.2,"duration":5000,"weight":200.0,"count":0},{"title":"apple","price":10.2,"duration":5000,"weight":200.0,"count":0}],"timeStart":[2024,3,5,22,35,52,426217300]}]

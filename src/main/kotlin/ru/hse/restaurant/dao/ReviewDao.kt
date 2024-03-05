@@ -11,4 +11,5 @@ interface ReviewDao {
     fun getAllReviews(): List<ReviewEntity> // get all reviews
     fun saveAllReviews() // save data to json
     fun fillingReviewsData() // download reviews data json
+    fun getReviewUserAboutDished(user : String, dish : String): ReviewEntity? // return user reviews list about dishes
 }

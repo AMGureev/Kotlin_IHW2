@@ -33,14 +33,6 @@ class InMemoryDishDao : DishDao {
         return dishes.find { it.title == title }
     }
 
-    override fun leaveReviewToDish(dish: DishEntity, review: ReviewEntity) {
-        dish.reviews.addLast(review)
-    }
-
-    override fun returnAllReviewsAboutDish(dish: DishEntity): List<ReviewEntity> {
-        return dish.reviews
-    }
-
     override fun returnAllDishes(): List<DishEntity> {
         return dishes.toList()
     }

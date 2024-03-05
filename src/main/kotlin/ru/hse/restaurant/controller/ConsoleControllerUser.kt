@@ -24,7 +24,7 @@ class ConsoleControllerUser(
         println("1. View the contents of the menu")
         println("2. Make a new order")
         println("3. Interaction with my orders (and edit order)")
-        println("4. Make a review")
+        println("4. Reviews")
         println("5. Sign out")
         println("6. Exit program")
         print("Enter your choose: ")
@@ -44,7 +44,7 @@ class ConsoleControllerUser(
             }
 
             "4" -> {
-                makeReview()
+                interactionWithReview()
             }
 
             "5" -> {
@@ -158,7 +158,7 @@ class ConsoleControllerUser(
                     println("1. Edit order")
                     println("2. Cancel order")
                     println("3. Go to main table")
-                    print("Your opinion: ")
+                    print("Enter your choose: ")
                     val ans = readln()
                     when (ans) {
                         "1" -> {
@@ -185,7 +185,7 @@ class ConsoleControllerUser(
                 } else {
                     println("1. Pay for the order")
                     println("2. Go back to the user table")
-                    print("Your opinion: ")
+                    print("Enter your choose: ")
                     val opinion = readln()
                     when (opinion) {
                         "1" -> {
@@ -280,55 +280,132 @@ class ConsoleControllerUser(
         }
     }
 
-    private fun makeReview() { // create new review
-        println("Make a review")
-        printOrders("paid")
-        if (orderDao.returnOrdersByUser(user.login).none { order -> order.status == "paid" }) {
-            println("Place an order and pay for it to make a review!")
-        } else {
-            print("Input ID: ")
-            try {
-                val otv = readln().toInt()
-                var coun = 1
-                if (orderDao.returnOrderById(otv)!! in orderDao.returnOrdersByUser(user.login)) {
-                    if (orderDao.returnOrderById(otv) != null && orderDao.returnOrderById(otv)!!.status == "paid") {
-                        for (dish in orderDao.returnOrderById(otv)!!.dishes.toList()) {
-                            println("${coun++}. Dish: ${dish.title}, price: ${dish.price}.")
-                        }
-                        print("Input title dish: ")
-                        val dish = readln()
-                        if (dishDao.returnDishByTitle(dish) in menuDao.returnAllDishes() && dishDao.returnDishByTitle(
-                                dish
-                            ) in orderDao.returnOrderById(otv)!!.dishes
-                        ) {
-                            print("Input stars (0-5): ")
-                            try {
-                                val stars = readln().toInt()
-                                print("Input text: ")
-                                val text = readln()
-                                if (stars in 0..5) {
-                                    if (text.length >= 20) {
-                                        reviewDao.createReview(
-                                            dishDao.returnDishByTitle(dish)!!,
-                                            user.login,
-                                            text,
-                                            stars
-                                        )
-                                        println("congratulation!")
-                                    } else {
-                                        println("ERROR [The text must contain at least 20 characters]")
-                                    }
-                                } else {
-                                    println("ERROR [The number of stars should be from 0 to 5]")
+    private fun interactionWithReview() { // interaction with review
+        println("Reviews")
+        println("1. Create a review")
+        println("2. Edit a review")
+        println("3. Delete a review")
+        print("Enter your choose: ")
+        val choose = readln()
+        when (choose) {
+            "1" -> {
+                println("Create a review")
+                printOrders("paid")
+                if (orderDao.returnOrdersByUser(user.login).none { order -> order.status == "paid" }) {
+                    println("Place an order and pay for it to make a review!")
+                } else {
+                    print("Input ID: ")
+                    try {
+                        val otv = readln().toInt()
+                        var coun = 1
+                        if (orderDao.returnOrderById(otv)!! in orderDao.returnOrdersByUser(user.login)) {
+                            if (orderDao.returnOrderById(otv) != null && orderDao.returnOrderById(otv)!!.status == "paid") {
+                                for (dish in orderDao.returnOrderById(otv)!!.dishes.toList()) {
+                                    println("${coun++}. Dish: ${dish.title}, price: ${dish.price}.")
                                 }
-                            } catch (ex: Exception) {
-                                println("ERROR [It was required to enter a number]")
+                                print("Input title dish: ")
+                                val dish = readln()
+                                if (dishDao.returnDishByTitle(dish) in orderDao.returnOrderById(otv)!!.dishes
+                                ) {
+                                    if (reviewDao.getReviewUserAboutDished(user.login, dish) != null) {
+                                        println("ERROR [the user has already left a review about this dish]")
+                                        return
+                                    }
+                                    print("Input stars (0-5): ")
+                                    try {
+                                        val stars = readln().toInt()
+                                        print("Input text: ")
+                                        val text = readln()
+                                        if (stars in 0..5) {
+                                            if (text.length >= 20) {
+                                                reviewDao.createReview(
+                                                    dishDao.returnDishByTitle(dish)!!,
+                                                    user.login,
+                                                    text,
+                                                    stars
+                                                )
+                                                println("Congratulation! You create new review!")
+                                            } else {
+                                                println("ERROR [The text must contain at least 20 characters]")
+                                            }
+                                        } else {
+                                            println("ERROR [The number of stars should be from 0 to 5]")
+                                        }
+                                    } catch (ex: Exception) {
+                                        println("ERROR [It was required to enter a number]")
+                                    }
+                                }
+                            }
+                        }
+                    } catch (ex: Exception) {
+                        println("ERROR [It was required to enter a number]")
+                    }
+                }
+            }
+            "2" -> {
+                println("Edit a review")
+                printOrders("paid")
+                if (orderDao.returnOrdersByUser(user.login).none { order -> order.status == "paid" }) {
+                    println("Place an order and pay for it to edit a review!")
+                } else {
+                    print("Input title dish: ")
+                    val dish = readln()
+                    if (dishDao.returnDishByTitle(dish) == null) {
+                        println("ERROR [This dish is not defined]")
+                        return
+                    }
+                    if (reviewDao.getReviewUserAboutDished(user.login, dish) != null) {
+                        print("Input stars (0-5): ")
+                        try {
+                            val stars = readln().toInt()
+                            print("Input text: ")
+                            val text = readln()
+                            if (stars in 0..5) {
+                                if (text.length >= 20) {
+                                    reviewDao.editReview(reviewDao.getReviewUserAboutDished(user.login, dish)!!, stars, text)
+                                    println("Congratulation! You edit the review about dish!")
+                                } else {
+                                    println("ERROR [The text must contain at least 20 characters]")
+                                }
+                            } else {
+                                println("ERROR [The number of stars should be from 0 to 5]")
+                            }
+                        } catch (ex: Exception) {
+                            println("ERROR [It was required to enter a number]")
+                        }
+                        return
+                    } else {
+                        println("ERROR [The user's review of this dish was not found]")
+                    }
+
+                }
+            }
+            "3" -> {
+                println("Delete a review")
+                printOrders("paid")
+                if (orderDao.returnOrdersByUser(user.login).none { order -> order.status == "paid" }) {
+                    println("Place an order and pay for it to edit a review!")
+                } else {
+                    print("Input title dish: ")
+                    val dish = readln()
+                    if (dishDao.returnDishByTitle(dish) == null) {
+                        println("ERROR [This dish is not defined]")
+                        return
+                    }
+                    if (reviewDao.getReviewUserAboutDished(user.login, dish) != null) {
+                        print("Are you sure?(y/other): ")
+                        val res = readln()
+                        when (res) {
+                            "y" -> {
+                                reviewDao.deleteReview(reviewDao.getReviewUserAboutDished(user.login, dish)!!)
+                                println("Congratulation! You delete your review!")
+                            }
+                            else -> {
+                                println("Cancel!")
                             }
                         }
                     }
                 }
-            } catch (ex: Exception) {
-                println("ERROR [It was required to enter a number]")
             }
         }
     }

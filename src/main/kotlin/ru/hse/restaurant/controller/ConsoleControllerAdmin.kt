@@ -72,7 +72,7 @@ class ConsoleControllerAdmin(
             return
         }
         if (dishDao.returnDishByTitle(title) == null) {
-            dishDao.createDish(DishEntity(title, price, duration, weight, 0, mutableListOf<ReviewEntity>()))
+            dishDao.createDish(DishEntity(title, price, duration, weight, 0))
             println("Congratulation! Create new dish!")
             print("Add this dish to menu?(y/other): ")
             val res = readln()
@@ -425,7 +425,7 @@ class ConsoleControllerAdmin(
                 val title = readln()
                 if (dishDao.returnDishByTitle(title) != null) {
                     println("1. Get average stars")
-                    println("2. Get all reviews")
+                    println("2. Get all reviews about dish")
                     print("Input your choose: ")
                     val otv = readln()
                     when (otv) {

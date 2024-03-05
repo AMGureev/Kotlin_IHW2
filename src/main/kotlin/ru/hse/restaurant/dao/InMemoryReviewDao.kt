@@ -16,7 +16,7 @@ class InMemoryReviewDao : ReviewDao {
     private val fileName = "reviews.json"
 
     override fun createReview(dish: DishEntity, login: String, text: String, stars: Int) {
-        reviews.add(ReviewEntity(dish, login, text, stars))
+        reviews.add(ReviewEntity(dish.title , login, text, stars))
     }
 
     override fun deleteReview(review: ReviewEntity) {
@@ -30,7 +30,7 @@ class InMemoryReviewDao : ReviewDao {
 
     override fun getReviewsAboutDished(dish: DishEntity): List<ReviewEntity> {
         return reviews.filter { review ->
-            review.dish == dish
+            review.dish == dish.title
         }
     }
 
@@ -58,5 +58,9 @@ class InMemoryReviewDao : ReviewDao {
         mapper.registerModule(JavaTimeModule())
         mapper.registerKotlinModule()
         reviews = mapper.readValue<MutableList<ReviewEntity>>(file.readText())
+    }
+
+    override fun getReviewUserAboutDished(user: String, dish : String): ReviewEntity? {
+        return reviews.find { review -> review.userName == user && review.dish == dish}
     }
 }

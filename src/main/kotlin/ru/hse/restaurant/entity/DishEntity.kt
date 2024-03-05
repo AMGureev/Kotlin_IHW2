@@ -6,5 +6,4 @@ data class DishEntity(
     var duration: Int,
     var weight: Double,
     var count: Int,
-    var reviews: List<ReviewEntity>
 )
