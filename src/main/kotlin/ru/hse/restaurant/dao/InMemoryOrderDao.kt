@@ -55,14 +55,6 @@ class InMemoryOrderDao : OrderDao {
         order.status = "paid"
     }
 
-    override fun getCostOfOrder(order: OrderEntity): Int {
-        var sum = 0
-        for (i in 0..order.dishes.size) {
-            sum += order.dishes[i].price
-        }
-        return sum
-    }
-
     override fun returnOrderById(id: Int): OrderEntity? {
         return orders.find { it.id == id }
     }
@@ -77,8 +69,8 @@ class InMemoryOrderDao : OrderDao {
         }
     }
 
-    override fun returnRevenue(): Int {
-        var revenue = 0
+    override fun returnRevenue(): Double {
+        var revenue = 0.0
         for (elem in returnOrdersByStatus("paid")) {
             for (dish in elem.dishes) {
                 revenue += dish.price

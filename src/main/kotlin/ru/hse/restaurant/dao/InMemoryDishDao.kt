@@ -21,10 +21,11 @@ class InMemoryDishDao : DishDao {
         dishes.remove(dish)
     }
 
-    override fun editDish(dish: DishEntity, newTitle: String, newPrice: Int, newDuration: Int, newWeight: Double) {
+    override fun editDish(dish: DishEntity, newTitle: String, newPrice: Double, newCount: Int, newDuration: Int, newWeight: Double) {
         dish.title = newTitle
         dish.weight = newWeight
         dish.price = newPrice
+        dish.count = newCount
         dish.duration = newDuration
     }
 

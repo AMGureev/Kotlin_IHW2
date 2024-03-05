@@ -67,7 +67,7 @@ class ConsoleControllerUser(
         }
         println("The menu's dishes:")
         for (dish in menuDao.returnAllDishes()) {
-            println("${cou++}. Title: ${dish.title}, price: ${dish.price}\$, weight: ${dish.weight}.")
+            println("${cou++}. Title: ${dish.title}, price: ${dish.price}, weight: ${dish.weight}.")
         }
     }
 
@@ -78,6 +78,7 @@ class ConsoleControllerUser(
         закончить формировать заказ: end
         */
         println("Please, input dish's title: ")
+        println("Input format: {dish name} x{quantity}")
         print(">>")
         var ans = readln()
         val list = mutableListOf<DishEntity>()
@@ -86,11 +87,19 @@ class ConsoleControllerUser(
             val matchResult = regex.matchEntire(ans)
             if (matchResult != null) {
                 val (dish, quantity) = matchResult.destructured
+                if (quantity.isEmpty()) {
+                    println("ERROR [Incorrect format]")
+                }
                 if (menuDao.returnDishesByTitle(dish) == null) {
                     println("ERROR [This dish is not on the menu]")
                 } else {
-                    repeat(quantity.toInt()) {
-                        list.add(menuDao.returnDishesByTitle(dish)!!)
+                    if (quantity.toInt() <= menuDao.returnDishesByTitle(dish)!!.count && quantity.toInt() > 0) {
+                        repeat(quantity.toInt()) {
+                            list.add(menuDao.returnDishesByTitle(dish)!!)
+                        }
+                        removeCountDishes(dish, quantity.toInt())
+                    } else {
+                        println("ERROR [Incorrect value of the number of dishes]")
                     }
                 }
             }
@@ -123,8 +132,18 @@ class ConsoleControllerUser(
                 if (orderDao.returnOrdersByUser(user.login).isEmpty()) {
                     println("Orders is empty!")
                 } else {
+
                     for (order in orderDao.returnOrdersByUser(user.login)) {
-                        println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}.")
+                        val dishCountMap = mutableMapOf<String, Int>()
+                        for (dish in order.dishes) {
+                            val title = dish.title
+                            dishCountMap[title] = dishCountMap.getOrDefault(title, 0) + 1
+                        }
+                        print("${coun++}. ID: ${order.id}, status: ${order.status}, dishes: ")
+                        for ((dish, count) in dishCountMap) {
+                            print("$dish x$count, ")
+                        }
+                        println()
                     }
                 }
             }
@@ -183,7 +202,7 @@ class ConsoleControllerUser(
                                     val res = readln()
                                     when (res) {
                                         "y" -> {
-                                            orderDao.setStatus(orderDao.returnOrderById(payId)!!, "paid")
+                                            orderDao.payOrder(orderDao.returnOrderById(payId)!!)
                                             println("Congratulation!")
                                         }
 
@@ -231,6 +250,7 @@ class ConsoleControllerUser(
                     if (dishDao.returnDishByTitle(dish)!! in menuDao.returnAllDishes()) {
                         orderDao.addDishToOrder(orderDao.returnOrderById(res)!!, dishDao.returnDishByTitle(dish)!!)
                         kitchenApp.addDishToOrder(orderDao.returnOrderById(res)!!)
+                        removeCountDishes(dish, 1)
                         println("Congratulation! You add $dish")
                     } else {
                         println("ERROR [This dish is not on menu]")
@@ -264,7 +284,7 @@ class ConsoleControllerUser(
         println("Make a review")
         printOrders("paid")
         if (orderDao.returnOrdersByUser(user.login).none { order -> order.status == "paid" }) {
-            println("Place an order and pay for it to leave an order!")
+            println("Place an order and pay for it to make a review!")
         } else {
             print("Input ID: ")
             try {
@@ -316,12 +336,28 @@ class ConsoleControllerUser(
     private fun printOrders(status: String) {
         var coun = 1
         for (order in orderDao.returnOrdersByStatus(status)) {
-            if (order in orderDao.returnOrdersByUser(user.login)) {
-                println("${coun++}. ID: ${order.id}, dishes: ${order.dishes}, status: ${order.status}. ")
+            val dishCountMap = mutableMapOf<String, Int>()
+            for (dish in order.dishes) {
+                val title = dish.title
+                dishCountMap[title] = dishCountMap.getOrDefault(title, 0) + 1
             }
+            if (order in orderDao.returnOrdersByUser(user.login)) {
+                print("${coun++}. ID: ${order.id}, status: ${order.status}, dishes: ")
+            }
+            for ((dish, count) in dishCountMap) {
+                print("$dish x$count, ")
+            }
+            println()
         }
         if (coun == 1) {
             println("Orders is empty!")
+        }
+    }
+
+    private fun removeCountDishes(title : String, count : Int) { // удаляем блюда из меню, если их не осталось
+        menuDao.returnDishesByTitle(title)!!.count -= count
+        if (menuDao.returnDishesByTitle(title)!!.count <= 0) {
+            menuDao.deleteDishWithMenu(menuDao.returnDishesByTitle(title)!!)
         }
     }
 }

@@ -94,7 +94,7 @@ class ConsoleController() : Controller {
 
     private fun registerAccount(name: String, password: String, isAdmin: Boolean) { // process register user
         if (accountDao.findAccountByLogin(name)) {
-            println("An account with this username already exists!")
+            println("ERROR [An account with this username already exists]")
         } else {
             if (isAdmin) {
                 accountDao.registerAdmin(name, password)
@@ -119,12 +119,12 @@ class ConsoleController() : Controller {
                 false
             }
         } else {
-            println("Error! - an account with that username does not exist")
+            println("ERROR [An account with that username does not exist]")
             false
         }
     }
 
-    fun saveAllInformationToJson() { // save all information about accounts to Json file
+    private fun saveAllInformationToJson() { // save all information about accounts to Json file
         accountDao.saveAllAccounts()
         dishDao.saveAllDishes()
         menuDao.saveAllMenu()

@@ -24,8 +24,9 @@ class ConsoleControllerAdmin(
         println("2. Get stats about dishes")
         println("3. Info about orders")
         println("4. Info about accounts")
-        println("5. Sign out")
-        println("6. Exit program")
+        println("5. Get info about revenue")
+        println("6. Sign out")
+        println("7. Exit program")
         print("Enter your choose: ")
         val ans = readln()
         when (ans) {
@@ -44,13 +45,15 @@ class ConsoleControllerAdmin(
             "4" -> {
                 infoAboutAccounts()
             }
-
             "5" -> {
+                returnRevenue()
+            }
+            "6" -> {
                 println("Sign out!")
                 console.launch()
             }
 
-            "6" -> {
+            "7" -> {
                 this.console.exitProgram()
             }
         }
@@ -59,7 +62,7 @@ class ConsoleControllerAdmin(
 
     private fun createNewDish(
         title: String,
-        price: Int,
+        price: Double,
         duration: Int,
         weight: Double
     ) {
@@ -67,13 +70,25 @@ class ConsoleControllerAdmin(
             return
         }
         if (dishDao.returnDishByTitle(title) == null) {
-            dishDao.createDish(DishEntity(title, price, duration, weight, mutableListOf<ReviewEntity>()))
+            dishDao.createDish(DishEntity(title, price, duration, weight, 0,mutableListOf<ReviewEntity>()))
+            println("Congratulation! Create new dish!")
             print("Add this dish to menu?(y/other): ")
             val res = readln()
             when (res) {
                 "y" -> {
-                    menuDao.addDishToMenu(dishDao.returnDishByTitle(title)!!)
-                    println("Congratulation! This dish on menu!")
+                    print("Enter the number of available dishes: ")
+                    try {
+                        val cou = readln().toInt()
+                        if (0 < cou ){
+                            dishDao.returnDishByTitle(title)!!.count += cou
+                            menuDao.addDishToMenu(dishDao.returnDishByTitle(title)!!)
+                            println("Congratulation! This dish on menu!")
+                        } else {
+                            println("ERROR [The quantity cannot be negative or zero]")
+                        }
+                    } catch (ex: Exception) {
+                        println("ERROR [Invalid value]")
+                    }
                 }
 
                 else -> {
@@ -87,7 +102,7 @@ class ConsoleControllerAdmin(
 
     private fun deleteDishOnMenu(title: String) {
         if (dishDao.returnDishByTitle(title) == null) {
-            println("Error!")
+            println("ERROR [A dish with that name not exists]")
             return
         } else {
             if (orderDao.returnOrdersByStatus("cooking")
@@ -120,47 +135,62 @@ class ConsoleControllerAdmin(
             println("ERROR [This dish already on menu]")
             return
         }
-        menuDao.addDishToMenu(dishDao.returnDishByTitle(titleDish)!!)
-        println("Congratulation!")
+        if (dishDao.returnDishByTitle(titleDish)!!.count != 0) {
+            menuDao.addDishToMenu(dishDao.returnDishByTitle(titleDish)!!)
+            println("Congratulation! This dish on menu!")
+            return
+        }
+        print("Enter the number of available dishes: ")
+        try {
+            val cou = readln().toInt()
+            if (0 < cou ){
+                dishDao.returnDishByTitle(titleDish)!!.count += cou
+                menuDao.addDishToMenu(dishDao.returnDishByTitle(titleDish)!!)
+                println("Congratulation! This dish on menu!")
+            } else {
+                println("ERROR [The quantity cannot be negative or zero]")
+            }
+        } catch (ex: Exception) {
+            println("ERROR [Invalid value]")
+        }
     }
 
     private fun editInfoAboutDish(
         oldTitle: String,
         newTitle: String,
-        newPrice: Int,
+        newPrice: Double,
+        newCount: Int,
         newWeight: Double,
         newDuration: Int
     ) {
         var newTitle = newTitle
         var newPrice = newPrice
+        var newCount = newCount
         var newWeight = newWeight
         var newDuration = newDuration
+        if (newTitle.isNotEmpty() && newTitle.length < 5) {
+            println("ERROR [The length must be at least 5]")
+            return
+        }
         if (newTitle.isEmpty()) {
             newTitle = oldTitle
-        }
-        if (!checkCorrectInput(newTitle, newPrice, newDuration, newWeight)) {
-            return
-        }
-        if (dishDao.returnDishByTitle(oldTitle) == null) {
-            println("ERROR [This dish is not defined]")
-            return
         }
         if (newWeight == 0.0) {
             newWeight = dishDao.returnDishByTitle(oldTitle)!!.weight
         }
-        if (newPrice == 0) {
+        if (newPrice == 0.0) {
             newPrice = dishDao.returnDishByTitle(oldTitle)!!.price
         }
         if (newDuration == 0) {
             newDuration = dishDao.returnDishByTitle(oldTitle)!!.duration
         }
-        dishDao.editDish(dishDao.returnDishByTitle(oldTitle)!!, newTitle, newPrice, newDuration, newWeight)
+        dishDao.editDish(dishDao.returnDishByTitle(oldTitle)!!, newTitle, newPrice, newCount, newDuration, newWeight)
         println("Congratulation!")
     }
 
     private fun getAverageStars(dish: DishEntity) {
         if (reviewDao.getReviewsAboutDished(dish).isEmpty()) {
-            println("List is empty!")
+            println("Dishes are not appreciated!")
             return
         }
         var cou = 0
@@ -172,7 +202,7 @@ class ConsoleControllerAdmin(
 
     private fun getAllReview(dish: DishEntity) {
         if (reviewDao.getReviewsAboutDished(dish).isEmpty()) {
-            println("List is empty!")
+            println("Dishes are not appreciated!")
             return
         }
         var cou = 1
@@ -182,6 +212,10 @@ class ConsoleControllerAdmin(
     }
 
     private fun getAverageStarsAllDishes() {
+        if (reviewDao.getAllReviews().isEmpty()) {
+            println("It is impossible to calculate the average score!")
+            return
+        }
         var averageStars = 0
         for (elem in reviewDao.getAllReviews()) {
             averageStars += elem.stars
@@ -193,21 +227,25 @@ class ConsoleControllerAdmin(
         println("Total revenue : ${orderDao.returnRevenue()}$.")
     }
 
-    private fun checkCorrectInput(title: String, price: Int, duration: Int, weight: Double): Boolean {
+    private fun checkCorrectInput(title: String, price: Double, duration: Int, weight: Double): Boolean {
+        var count = 0
         if (title.length < 5) {
             println("ERROR [The length must be at least 5]")
-            return false
+            count += 1
         }
         if (price <= 0) {
             println("ERROR [The price cannot be negative]")
-            return false
+            count += 1
         }
         if (duration <= 0) {
             println("ERROR [The duration cannot be negative]")
-            return false
+            count += 1
         }
         if (weight <= 0) {
             println("ERROR [The weight cannot be negative]")
+            count += 1
+        }
+        if (count > 1) {
             return false
         }
         return true
@@ -229,10 +267,10 @@ class ConsoleControllerAdmin(
                 val title = readln()
                 print("Input price: ")
                 try {
-                    val price = readln().toInt()
-                    print("Input duration: ")
-                    val duration = readln().toInt()
-                    print("Input weight: ")
+                    val price = readln().toDouble()
+                    print("Input duration (sec): ")
+                    val duration = readln().toInt() * 1000
+                    print("Input weight (grams): ")
                     val weight = readln().toDouble()
                     createNewDish(title, price, duration, weight)
                     printMainTable()
@@ -251,7 +289,7 @@ class ConsoleControllerAdmin(
 
             "3" -> {
                 var cou = 1
-                print("Check all dishes or only in menu(y/n)?: ")
+                print("Check all dishes (input 'y') or only in menu (input 'n')?: ")
                 val res = readln()
                 when (res) {
                     "y" -> {
@@ -260,8 +298,7 @@ class ConsoleControllerAdmin(
                         }
                         println("All dishes:")
                         for (dish in dishDao.returnAllDishes()) {
-                            println("${cou++}. Title: ${dish.title}, price: ${dish.price}$, weight: ${dish.weight}, duration: ${dish.duration}")
-                            // добавить пункт в меню или нет
+                            println("${cou++}. Title: ${dish.title}, price: ${dish.price}$, count: ${dish.count}, weight: ${dish.weight}, duration: ${dish.duration}")
                         }
                     }
 
@@ -272,7 +309,7 @@ class ConsoleControllerAdmin(
                         }
                         println("The menu's dishes:")
                         for (dish in menuDao.returnAllDishes()) {
-                            println("${cou++}. Title: ${dish.title}, price: ${dish.price}\$, weight: ${dish.weight}, duration: ${dish.duration}")
+                            println("${cou++}. Title: ${dish.title}, price: ${dish.price}\$, count: ${dish.count}, weight: ${dish.weight} gram, duration: ${dish.duration} sec")
                         }
                     }
 
@@ -293,24 +330,73 @@ class ConsoleControllerAdmin(
                 println("Edit info about dish!")
                 print("Input dish's title: ")
                 val title = readln()
-                print("Input new dish's title(if you want to leave, input nothing: ")
+                if (dishDao.returnDishByTitle(title) == null) {
+                    println("ERROR [This dish is not defined]")
+                    return
+                }
+                print("Input new dish's title(If you want to keep the value, input nothing: ")
                 var newTitle = readln()
-                println("Input new dish's price(if you want to leave, input nothing or zero: ")
+                print("Input new dish's price(If you want to keep the value, input nothing or zero: ")
                 var newPrice = readln()
                 if (newPrice.isEmpty()) {
                     newPrice = "0"
                 }
-                println("Input new dish's weight(if you want to leave, input nothing or zero: ")
+                try {
+                    val p = newPrice.toDouble()
+                    if (p < 0) {
+                        println("ERROR [The price cannot be negative]")
+                        return
+                    }
+                } catch (ex: Exception) {
+                    println("ERROR [No number entered]")
+                    return
+                }
+                print("Input new dish's count(If you want to keep the value, input nothing or zero: ")
+                var newCount = readln()
+                if (newCount.isEmpty()) {
+                    newCount = "0"
+                }
+                try {
+                    val p = newCount.toInt()
+                    if (p < 0) {
+                        println("ERROR [The count cannot be negative]")
+                        return
+                    }
+                } catch (ex: Exception) {
+                    println("ERROR [No number entered]")
+                    return
+                }
+                print("Input new dish's weight(If you want to keep the value, input nothing or zero: ")
                 var newWeight = readln()
                 if (newWeight.isEmpty()) {
                     newWeight = "0"
                 }
-                println("Input new dish's duration(if you want to leave, input nothing or zero: ")
+                try {
+                    val p = newWeight.toDouble()
+                    if (p < 0) {
+                        println("ERROR [The weight cannot be negative]")
+                        return
+                    }
+                } catch (ex: Exception) {
+                    println("ERROR [No number entered]")
+                    return
+                }
+                print("Input new dish's duration(If you want to keep the value, input nothing or zero: ")
                 var newDuration = readln()
                 if (newDuration.isEmpty()) {
                     newDuration = "0"
                 }
-                editInfoAboutDish(title, newTitle, newPrice.toInt(), newWeight.toDouble(), newDuration.toInt())
+                try {
+                    val p = newDuration.toInt()
+                    if (p < 0) {
+                        println("ERROR [The duration cannot be negative]")
+                        return
+                    }
+                } catch (ex: Exception) {
+                    println("ERROR [No number entered]")
+                    return
+                }
+                editInfoAboutDish(title, newTitle, newPrice.toDouble(), newCount.toInt(), newWeight.toDouble(), newDuration.toInt() * 1000)
             }
         }
     }
@@ -319,7 +405,6 @@ class ConsoleControllerAdmin(
         println("Get stats!")
         println("1. Stats about dish")
         println("2. Average dishes rating")
-        println("3. Revenue")
         print("Input your choose: ")
         val ans = readln()
         when (ans) {
@@ -351,10 +436,6 @@ class ConsoleControllerAdmin(
 
             "2" -> {
                 getAverageStarsAllDishes()
-            }
-
-            "3" -> {
-                returnRevenue()
             }
 
             else -> {
@@ -427,10 +508,19 @@ class ConsoleControllerAdmin(
     private fun printOrders(status: String) {
         var coun = 1
         for (order in orderDao.returnOrdersByStatus(status)) {
-            println("${coun++}. ID: ${order.id}, person: ${order.person}, dishes: ${order.dishes}")
+            val dishCountMap = mutableMapOf<String, Int>()
+            for (dish in order.dishes) {
+                val title = dish.title
+                dishCountMap[title] = dishCountMap.getOrDefault(title, 0) + 1
+            }
+            print("${coun++}. ID: ${order.id}, person: ${order.person}, dishes: ")
+            for ((dish, count) in dishCountMap) {
+                print("$dish x$count, ")
+            }
+            println()
         }
         if (coun == 1) {
-            println("Zero paid orders")
+            println("Zero $status orders")
         }
     }
 }
