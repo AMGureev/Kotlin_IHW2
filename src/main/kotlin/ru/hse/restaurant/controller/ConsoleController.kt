@@ -21,7 +21,7 @@ class ConsoleController() : Controller {
         try {
             ans = readln().toInt()
         } catch (e: Exception) {
-            println("Error!")
+            println("ERROR [Incorrect input]")
             printHelloTable()
         }
         when (ans) {
@@ -79,7 +79,7 @@ class ConsoleController() : Controller {
                     }
 
                     else -> {
-                        println("Error!")
+                        println("ERROR [Incorrect input]")
                     }
                 }
                 saveAllInformationToJson()
