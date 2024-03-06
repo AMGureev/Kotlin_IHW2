@@ -60,12 +60,12 @@ Choose one of the actions:
 7. Exit program
 ```
 В зависимости от введенного значения админ перейдет на одну из следущих страниц:
-1. [Interaction with dishes](Взаимодейтсвие-с-блюдами)
+1. [Interaction with dishes](Взаимодействие-с-блюдами)
 2. [Get stats about dishes](Узнать-статистику-блюд)
-3. [Info about orders](Информация-о-заказ)
+3. [Info about orders](Информация-о-заказах)
 4. [Info about accounts](Информация-об-аккаунтах)
 5. [Get info about revenue](Узнать-выручку-ресторана)
-#### Взаимодейтсвие с блюдами
+#### Взаимодействие с блюдами
 ```
 1. Create new dish
 2. Delete dish
