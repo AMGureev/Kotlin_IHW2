@@ -27,7 +27,7 @@ class ConsoleControllerUser(
         println("4. Reviews")
         println("5. Sign out")
         println("6. Exit program")
-        print("Enter your choose: ")
+        print("Choose one of the actions: ")
         val ans = readln()
         when (ans) {
             "1" -> {
@@ -123,7 +123,7 @@ class ConsoleControllerUser(
         println("2. Print cooking orders")
         println("3. Print orders awaiting payment(paid orders)")
         println("4. Print paid orders")
-        print("Enter your choose: ")
+        print("Choose one of the actions: ")
         val otv = readln()
         var coun = 1
         when (otv) {
@@ -158,7 +158,7 @@ class ConsoleControllerUser(
                     println("1. Edit order")
                     println("2. Cancel order")
                     println("3. Go to main table")
-                    print("Enter your choose: ")
+                    print("Choose one of the actions: ")
                     val ans = readln()
                     when (ans) {
                         "1" -> {
@@ -185,7 +185,7 @@ class ConsoleControllerUser(
                 } else {
                     println("1. Pay for the order")
                     println("2. Go back to the user table")
-                    print("Enter your choose: ")
+                    print("Choose one of the actions: ")
                     val opinion = readln()
                     when (opinion) {
                         "1" -> {
@@ -285,7 +285,7 @@ class ConsoleControllerUser(
         println("1. Create a review")
         println("2. Edit a review")
         println("3. Delete a review")
-        print("Enter your choose: ")
+        print("Choose one of the actions: ")
         val choose = readln()
         when (choose) {
             "1" -> {
@@ -311,12 +311,12 @@ class ConsoleControllerUser(
                                         println("ERROR [the user has already left a review about this dish]")
                                         return
                                     }
-                                    print("Input stars (0-5): ")
+                                    print("Input stars (1-5): ")
                                     try {
                                         val stars = readln().toInt()
                                         print("Input text: ")
                                         val text = readln()
-                                        if (stars in 0..5) {
+                                        if (stars in 1..5) {
                                             if (text.length >= 20) {
                                                 reviewDao.createReview(
                                                     dishDao.returnDishByTitle(dish)!!,
@@ -329,7 +329,7 @@ class ConsoleControllerUser(
                                                 println("ERROR [The text must contain at least 20 characters]")
                                             }
                                         } else {
-                                            println("ERROR [The number of stars should be from 0 to 5]")
+                                            println("ERROR [The number of stars should be from 1 to 5]")
                                         }
                                     } catch (ex: Exception) {
                                         println("ERROR [It was required to enter a number]")
@@ -355,12 +355,12 @@ class ConsoleControllerUser(
                         return
                     }
                     if (reviewDao.getReviewUserAboutDished(user.login, dish) != null) {
-                        print("Input stars (0-5): ")
+                        print("Input stars (1-5): ")
                         try {
                             val stars = readln().toInt()
                             print("Input text: ")
                             val text = readln()
-                            if (stars in 0..5) {
+                            if (stars in 1..5) {
                                 if (text.length >= 20) {
                                     reviewDao.editReview(reviewDao.getReviewUserAboutDished(user.login, dish)!!, stars, text)
                                     println("Congratulation! You edit the review about dish!")
@@ -368,7 +368,7 @@ class ConsoleControllerUser(
                                     println("ERROR [The text must contain at least 20 characters]")
                                 }
                             } else {
-                                println("ERROR [The number of stars should be from 0 to 5]")
+                                println("ERROR [The number of stars should be from 1 to 5]")
                             }
                         } catch (ex: Exception) {
                             println("ERROR [It was required to enter a number]")

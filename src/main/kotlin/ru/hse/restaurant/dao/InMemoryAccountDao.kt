@@ -7,11 +7,14 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.mindrot.jbcrypt.BCrypt
 import ru.hse.restaurant.entity.AdminEntity
 import ru.hse.restaurant.entity.AccountEntity
+import ru.hse.restaurant.entity.EntityFactory
 import ru.hse.restaurant.entity.UserEntity
+import ru.hse.restaurant.enums.Type
 import java.io.File
 import kotlin.io.path.Path
 
 class InMemoryAccountDao : AccountDao {
+    private val entityFactory = EntityFactory()
     private val directoryPath = "accounts"
     private val fileAdminsNames = "admins.json"
     private val fileUsersNames = "users.json"
@@ -19,12 +22,12 @@ class InMemoryAccountDao : AccountDao {
     private var users = mutableListOf<UserEntity>()
     override fun registerUser(login: String, password: String) {
         val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
-        users.add(UserEntity(hashedPassword, login))
+        users.add(entityFactory.createAccount(Type.USER, login, hashedPassword) as UserEntity)
     }
 
     override fun registerAdmin(login: String, password: String) {
         val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
-        admins.add(AdminEntity(hashedPassword, login))
+        admins.add(entityFactory.createAccount(Type.ADMIN, login, hashedPassword) as AdminEntity)
     }
 
     override fun authenticateAccount(inputPassword: String, account: AccountEntity): Boolean {

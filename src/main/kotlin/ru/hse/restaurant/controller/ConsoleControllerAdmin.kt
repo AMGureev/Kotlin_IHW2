@@ -29,7 +29,7 @@ class ConsoleControllerAdmin(
         println("5. Get info about revenue")
         println("6. Sign out")
         println("7. Exit program")
-        print("Enter your choose: ")
+        print("Choose one of the actions: ")
         val ans = readln()
         when (ans) {
             "1" -> {
@@ -419,7 +419,7 @@ class ConsoleControllerAdmin(
         println("Get stats!")
         println("1. Stats about dish")
         println("2. Average dishes rating")
-        print("Input your choose: ")
+        print("Choose one of the actions: ")
         val ans = readln()
         when (ans) {
             "1" -> {
@@ -428,7 +428,7 @@ class ConsoleControllerAdmin(
                 if (dishDao.returnDishByTitle(title) != null) {
                     println("1. Get average stars")
                     println("2. Get all reviews about dish")
-                    print("Input your choose: ")
+                    print("Choose one of the actions: ")
                     val otv = readln()
                     when (otv) {
                         "1" -> {
