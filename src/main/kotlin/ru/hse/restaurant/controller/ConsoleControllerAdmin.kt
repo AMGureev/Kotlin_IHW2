@@ -236,19 +236,19 @@ class ConsoleControllerAdmin(
 
     private fun checkCorrectInput(title: String, price: Double, duration: Int, weight: Double): Boolean { // check the correctness of the entered values for the dish
         var count = 0
-        if (title.length < 5) {
+        if (title.length < 3) {
             println("ERROR [The length must be at least 5]")
             count += 1
         }
-        if (price <= 0) {
+        if (price < 0) {
             println("ERROR [The price cannot be negative]")
             count += 1
         }
-        if (duration <= 0) {
+        if (duration < 0) {
             println("ERROR [The duration cannot be negative]")
             count += 1
         }
-        if (weight <= 0) {
+        if (weight < 0) {
             println("ERROR [The weight cannot be negative]")
             count += 1
         }
